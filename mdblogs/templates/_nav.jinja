@@ -8,6 +8,9 @@
       <a class="button" href="{{ url_for('about') }}">About</a>
       <a class="button" href="{{ url_for('articles') }}">Articles</a>
       <a class="button" href="{{ url_for('view_admin') }}">Admin</a>
+      {% if session.get('logged_in') %}
+        <a class="button" href="{{ url_for('view_logout') }}">Logout</a>
+      {% endif %}
     </nav>
   </div>
 </header>
