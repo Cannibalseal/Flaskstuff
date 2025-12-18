@@ -1,0 +1,15 @@
+{% extends "_main.jinja" %}
+
+{% block title %}Article Not Found{% endblock %}
+
+{% block main %}
+<div class="card">
+  <h2>Article Not Found</h2>
+  <p>Sorry — we couldn't find an article with the slug "{{ slug }}". It may have been removed or the URL is incorrect.</p>
+  <p>Try browsing the available articles or return home.</p>
+  <p>
+    <a class="button" href="{{ url_for('articles') }}">Browse Articles</a>
+    <a class="button" href="{{ url_for('index') }}">Home</a>
+  </p>
+</div>
+{% endblock %}

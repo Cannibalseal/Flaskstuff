@@ -7,9 +7,13 @@
 	<h2>Articles</h2>
 	<p>Here are some short posts and examples you can read and reuse.</p>
 	<ul style="text-align:left; display:inline-block; margin:0; padding-left:1.1rem;">
-		<li><a href="#">Getting started with Flask (quickstart)</a></li>
-		<li><a href="#">Small project structure tips</a></li>
-		<li><a href="#">Deploying a simple app</a></li>
+		{% for a in articles %}
+			<li>
+				<a href="{{ url_for('article_detail', slug=a.slug) }}"><strong>{{ a.title }}</strong></a> &mdash; <small>{{ a.summary }}</small>
+			</li>
+		{% else %}
+			<li>No articles available.</li>
+		{% endfor %}
 	</ul>
 	<p style="margin-top:1rem;"><a class="button" href="/">Back to Home</a></p>
 </div>
