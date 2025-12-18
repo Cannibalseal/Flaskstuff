@@ -1,0 +1,113 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Pipenv
+Pipfile.lock
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# Flask instance folder
+instance/
+
+# Uploaded files / temporary
+uploads/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+pip-wheel-metadata/
+*.egg
+
+# Eggs
+.eggs/
+
+# Database files
+*.sqlite3
+*.db
+
+# Environment variables / secrets
+.env
+.env.*
+
+# Editor / IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Node
+node_modules/
+
+# Vagrant
+.vagrant/
+
+# Wheels
+*.whl
+
+# Optional: ignore local settings
+local_settings.py
+
+# Ignore coverage outputs
+htmlcov/
+.coverage
+
+# Ignore compiled assets
+*.pyc
+
+# JetBrains
+/.idea
+
+# macOS
+.AppleDouble
+.LSOverride
+
+# Windows image file caches
+ehthumbs.db
+
+# Temporary files
+tmp/
+
+# Build artifacts
+*.o
+*.pyc
+
+# End of file
