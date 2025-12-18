@@ -6,7 +6,7 @@ app = Flask(__name__, template_folder='mdblogs/templates', static_folder='mdblog
 
 @app.route('/')
 def index():
-    return render_template('welcome_page.html')
+    return render_template('welcome_page.jinja')
 
 
 @app.route('/admin/')
@@ -16,7 +16,7 @@ def view_admin():
 
 @app.route('/about/')
 def about():
-    return render_template('about_page.html')
+    return render_template('about_page.jinja')
 
 
 @app.route('/articles/')
