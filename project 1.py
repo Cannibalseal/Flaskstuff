@@ -1,11 +1,14 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, session
 from mdblogs import database as db
+from configs import cfg
 
 # Use templates and static files from the `mdblogs` subfolder
 app = Flask(__name__, template_folder='mdblogs/templates', static_folder='mdblogs/static')
 # Secret key for session (override with FLASK_SECRET env var in production)
-app.secret_key = os.environ.get('FLASK_SECRET', 'dev-secret')
+app.secret_key = cfg.SECRET_KEY
+# Load other config values into Flask app.config for templates and extensions
+app.config.from_object(cfg)
 
 
 @app.route('/')
@@ -47,8 +50,8 @@ def view_login():
     if request.method == 'POST':
         username = request.form.get('username', '')
         password = request.form.get('password', '')
-        admin_user = os.environ.get('ADMIN_USER', 'admin')
-        admin_pass = os.environ.get('ADMIN_PASS', 'password')
+        admin_user = cfg.ADMIN_USER
+        admin_pass = cfg.ADMIN_PASS
         if username == admin_user and password == admin_pass:
             session['logged_in'] = True
             next_page = request.args.get('next') or url_for('view_admin')
@@ -63,4 +66,4 @@ def view_logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=cfg.DEBUG)
