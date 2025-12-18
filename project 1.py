@@ -11,7 +11,7 @@ def index():
 
 @app.route('/admin/')
 def view_admin():
-    return "Admin Dashboard"
+    return render_template('admin.jinja')
 
 
 @app.route('/about/')
@@ -21,7 +21,7 @@ def about():
 
 @app.route('/articles/')
 def articles():
-    return "<html><body><h1>Articles</h1><p>List of articles will go here.</p><p><a href=\"/\">Back</a></p></body></html>"
+    return render_template('articles.jinja')
 
 
 if __name__ == '__main__':

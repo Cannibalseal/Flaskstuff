@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title> {% block title %} {% endblock %} </title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+	</head>
+	<body>
+		<div class="card">
+			<h1>Welcome to My Flask App</h1>
+			<p>This is a simple welcome page. Use the links below to explore.</p>
+			<p>
+				<a class="button" href="/about/">About</a>
+				<a class="button" href="/articles/">Articles</a>
+				<a class="button" href="/admin/">Admin</a>
+			</p>
+		</div>
+        <main>
+            {% block main %} {% endblock %}
+        </main>
+		<footer class="site-footer">
+			© 2025 Sealy — All rights reserved.
+		</footer>
+	</body>
+</html>
