@@ -1,0 +1,44 @@
+{% extends "_main.jinja" %}
+
+{% block title %}{{ 'New Article' if mode == 'new' else 'Edit Article' }}{% endblock %}
+
+{% block main %}
+<div class="card">
+  <h2>{{ 'Create New Article' if mode == 'new' else 'Edit Article' }}</h2>
+  <p class="muted">{{ 'Add a new article to your blog.' if mode == 'new' else 'Update article details below.' }}</p>
+
+  <form action="" method="post" novalidate style="max-width:800px;margin:1rem auto;text-align:left;">
+    {{ form.hidden_tag() }}
+    
+    <div style="margin-bottom:1.5rem;">
+      {{ form.title.label(class="muted", style="display:block;margin-bottom:0.5rem;font-weight:500;") }}
+      {{ form.title(class="form-input") }}
+    </div>
+
+    <div style="margin-bottom:1.5rem;">
+      {{ form.summary.label(class="muted", style="display:block;margin-bottom:0.5rem;font-weight:500;") }}
+      {{ form.summary(class="form-input") }}
+      <small class="muted" style="display:block;margin-top:0.35rem;font-size:0.8rem;">Brief description shown in article listings</small>
+    </div>
+
+    <div style="margin-bottom:1.5rem;">
+      {{ form.content.label(class="muted", style="display:block;margin-bottom:0.5rem;font-weight:500;") }}
+      {{ form.content(class="form-input") }}
+      <small class="muted" style="display:block;margin-top:0.35rem;font-size:0.8rem;">Supports HTML formatting</small>
+    </div>
+
+    <div style="margin-bottom:1.5rem;">
+      <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;">
+        {{ form.published(style="width:auto;cursor:pointer;") }}
+        <span class="muted" style="font-weight:500;">{{ form.published.label.text }}</span>
+      </label>
+      <small class="muted" style="display:block;margin-top:0.35rem;font-size:0.8rem;">{{ form.published.description }}</small>
+    </div>
+
+    <div style="margin-top:2rem; display:flex; gap:0.75rem; justify-content:flex-start;">
+      {{ form.submit(class="button") }}
+      <a class="button" href="{{ url_for('view_admin') }}" style="display:flex; align-items:center; justify-content:center;">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

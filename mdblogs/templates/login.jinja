@@ -7,18 +7,21 @@
   <h2>Sign in</h2>
   <p class="muted">Enter your credentials to access the admin area.</p>
 
-  <form action="{{ url_for('view_login') }}" method="post" style="max-width:420px;margin:1rem auto;text-align:left;">
-    {% if error %}
-      <div style="color:#ef4444;margin-bottom:0.5rem;padding:0.75rem;background:rgba(239,68,68,0.1);border:1px solid #ef4444;border-radius:8px;">{{ error }}</div>
-    {% endif %}
-    <label for="username" class="muted" style="display:block;margin-bottom:0.35rem;">Username</label>
-    <input id="username" name="username" type="text" placeholder="yourname" style="margin-bottom:1rem;">
+  <form action="{{ url_for('view_login') }}" method="post" novalidate style="max-width:420px;margin:1rem auto;text-align:left;">
+    {{ form.hidden_tag() }}
+    
+    <div style="margin-bottom:1rem;">
+      {{ form.username.label(class="muted", style="display:block;margin-bottom:0.35rem;") }}
+      {{ form.username(class="form-input") }}
+    </div>
 
-    <label for="password" class="muted" style="display:block;margin-bottom:0.35rem;">Password</label>
-    <input id="password" name="password" type="password" placeholder="••••••" style="margin-bottom:1rem;">
+    <div style="margin-bottom:1rem;">
+      {{ form.password.label(class="muted", style="display:block;margin-bottom:0.35rem;") }}
+      {{ form.password(class="form-input") }}
+    </div>
 
     <p style="margin-top:1.5rem; text-align:center; display:flex; gap:0.5rem; justify-content:center;">
-      <button type="submit" style="flex:1; max-width:160px;">Sign in</button>
+      {{ form.submit(class="button", style="flex:1; max-width:160px; border:none;") }}
       <a class="button" href="{{ url_for('index') }}" style="flex:1; max-width:160px; display:flex; align-items:center; justify-content:center;">Cancel</a>
     </p>
   </form>

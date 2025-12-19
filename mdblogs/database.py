@@ -102,6 +102,18 @@ def get_all_articles():
     return articles
 
 
+def get_all_articles_admin():
+    """Return all articles (published and unpublished) for admin view."""
+    init_db()
+    conn = _get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT id, slug, title, summary, content, published, created_at FROM articles ORDER BY created_at DESC")
+    rows = cur.fetchall()
+    articles = [_row_to_article(r) for r in rows]
+    conn.close()
+    return articles
+
+
 def get_article(slug):
     """Return a single article dict by slug, or None if not found."""
     init_db()
@@ -150,3 +162,17 @@ def create_article(title, summary, content, published=0):
     if article and article.get('date'):
         article['date'] = article['date'].strftime('%Y-%m-%d %H:%M:%S')
     return article
+
+
+def update_article(article_id, title, summary, content, published):
+    """Update an existing article."""
+    init_db()
+    updated_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    conn = _get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        'UPDATE articles SET title=?, summary=?, content=?, published=?, updated_at=? WHERE id=?',
+        (title, summary, content, int(published), updated_at, article_id)
+    )
+    conn.commit()
+    conn.close()

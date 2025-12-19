@@ -3,12 +3,16 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 import logging
 from urllib.parse import parse_qs
 from mdblogs import database as db
+from mdblogs.forms import LoginForm, ArticleForm
 from configs import cfg
 
 # Use templates and static files from the `mdblogs` subfolder
 app = Flask(__name__, template_folder='mdblogs/templates', static_folder='mdblogs/static')
 # Secret key for session (override with FLASK_SECRET env var in production)
 app.secret_key = cfg.SECRET_KEY
+# WTForms CSRF protection uses the same secret key
+app.config['WTF_CSRF_ENABLED'] = True
+app.config['WTF_CSRF_TIME_LIMIT'] = None  # Disable CSRF token expiration for testing
 # Load other config values into Flask app.config for templates and extensions
 app.config.from_object(cfg)
 
@@ -23,7 +27,68 @@ def view_admin():
     # simple access control: require session flag
     if not session.get('logged_in'):
         return redirect(url_for('view_login', next=url_for('view_admin')))
-    return render_template('admin.jinja')
+    # Show list of all articles (published and unpublished) for management
+    all_articles = db.get_all_articles_admin()
+    return render_template('admin.jinja', articles=all_articles)
+
+
+@app.route('/admin/article/new', methods=['GET', 'POST'])
+def new_article():
+    if not session.get('logged_in'):
+        return redirect(url_for('view_login', next=url_for('new_article')))
+    
+    form = ArticleForm()
+    
+    if form.validate_on_submit():
+        title = form.title.data
+        summary = form.summary.data or ''
+        content = form.content.data
+        published = 1 if form.published.data else 0
+        
+        article = db.create_article(title, summary, content, published)
+        flash(f'Article "{title}" created successfully!', 'success')
+        return redirect(url_for('view_admin'))
+    elif request.method == 'POST':
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(error, 'error')
+    
+    return render_template('article_form.jinja', form=form, mode='new')
+
+
+@app.route('/admin/article/edit/<slug>', methods=['GET', 'POST'])
+def edit_article(slug):
+    if not session.get('logged_in'):
+        return redirect(url_for('view_login', next=url_for('edit_article', slug=slug)))
+    
+    article = db.get_article(slug)
+    if not article:
+        flash('Article not found.', 'error')
+        return redirect(url_for('view_admin'))
+    
+    form = ArticleForm()
+    
+    if form.validate_on_submit():
+        title = form.title.data
+        summary = form.summary.data or ''
+        content = form.content.data
+        published = 1 if form.published.data else 0
+        
+        db.update_article(article['id'], title, summary, content, published)
+        flash(f'Article "{title}" updated successfully!', 'success')
+        return redirect(url_for('view_admin'))
+    elif request.method == 'POST':
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(error, 'error')
+    elif request.method == 'GET':
+        # Populate form with existing data
+        form.title.data = article['title']
+        form.summary.data = article['summary']
+        form.content.data = article['content']
+        form.published.data = article['published']
+    
+    return render_template('article_form.jinja', form=form, mode='edit', article=article)
 
 
 @app.route('/about/')
@@ -120,31 +185,29 @@ def article_detail(slug):
 
 @app.route('/login', methods=['GET', 'POST'])
 def view_login():
-    # simple login handler for demo purposes
-    error = None
-    if request.method == 'POST':
-        # Use values (form + querystring) for robustness; fallback to manual parse if Content-Type missing
-        username = request.values.get('username', '')
-        password = request.values.get('password', '')
-        if not username or not password:
-            raw = request.get_data(as_text=True) or ''
-            if raw and '=' in raw:
-                try:
-                    parsed = parse_qs(raw, keep_blank_values=True)
-                    username = parsed.get('username', [username])[0] or username
-                    password = parsed.get('password', [password])[0] or password
-                except Exception:
-                    pass
+    # WTForms-based login handler
+    form = LoginForm()
+    
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
         admin_user = cfg.ADMIN_USER
         admin_pass = cfg.ADMIN_PASS
+        
         if username == admin_user and password == admin_pass:
             session['logged_in'] = True
             flash('Successfully logged in!', 'success')
             next_page = request.args.get('next') or url_for('view_admin')
             return redirect(next_page)
-        error = 'Invalid credentials.'
-        flash(error, 'error')
-    return render_template('login.jinja', error=error)
+        
+        flash('Invalid credentials.', 'error')
+    elif request.method == 'POST':
+        # Form validation failed - flash all errors
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(error, 'error')
+    
+    return render_template('login.jinja', form=form)
 
 
 @app.route('/logout')

@@ -149,7 +149,9 @@ a:hover{
 }
 
 /* Buttons */
-a.button {
+a.button,
+button.button,
+input[type="submit"].button {
   display:inline-block;
   margin-right:0.6rem;
   padding:0.65rem 1.3rem;
@@ -165,9 +167,14 @@ a.button {
   border: 1px solid rgba(6, 182, 212, 0.3);
   position: relative;
   overflow: hidden;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
 }
 
-a.button::before {
+a.button::before,
+button.button::before,
+input[type="submit"].button::before {
   content: '';
   position: absolute;
   top: 0;
@@ -178,17 +185,27 @@ a.button::before {
   transition: left 0.5s;
 }
 
-a.button:hover::before {
+a.button:hover::before,
+button.button:hover::before,
+input[type="submit"].button:hover::before {
   left: 100%;
 }
 
-a.button:hover{ 
+a.button:hover,
+button.button:hover,
+input[type="submit"].button:hover { 
   transform: translateY(-2px);
   box-shadow: 
     0 0 30px rgba(6, 182, 212, 0.6),
     0 8px 20px rgba(0, 0, 0, 0.5);
   border-color: var(--cyan);
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+a.button:active,
+button.button:active,
+input[type="submit"].button:active {
+  transform: translateY(0);
 }
 
 /* Lists */
@@ -305,7 +322,8 @@ li strong {
 input[type="text"],
 input[type="password"],
 input[type="email"],
-textarea {
+textarea,
+.form-input {
   background: rgba(26, 26, 62, 0.5);
   border: 1px solid var(--card-border);
   border-radius: 8px;
@@ -315,16 +333,50 @@ textarea {
   width: 100%;
   box-sizing: border-box;
   transition: all 0.3s ease;
+  font-family: inherit;
 }
 
 input[type="text"]:focus,
 input[type="password"]:focus,
 input[type="email"]:focus,
-textarea:focus {
+textarea:focus,
+.form-input:focus {
   outline: none;
   border-color: var(--cyan);
   box-shadow: 0 0 20px var(--glow);
   background: rgba(26, 26, 62, 0.7);
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--cyan);
+  cursor: pointer;
+}
+
+/* Field validation errors */
+.field-error {
+  margin-top: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  color: #fca5a5;
+  font-size: 0.85rem;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Form buttons */

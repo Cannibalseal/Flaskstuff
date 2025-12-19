@@ -5,8 +5,54 @@
 {% block main %}
 <div class="card">
 	<h2>Admin Dashboard</h2>
-	<p class="muted">You must be logged in to access this area. If you're not signed in, please log in or contact the site administrator.</p>
-	<p>This is a minimal admin view. You can add management controls here—post creation, edits, or simple stats.</p>
-	<p style="margin-top:1rem;"><a class="button" href="/">Back to Home</a></p>
+	<p class="muted">Manage your blog articles below.</p>
+	
+	<div style="margin:1.5rem 0;">
+		<a class="button" href="{{ url_for('new_article') }}">+ New Article</a>
+	</div>
+
+	{% if articles %}
+	<div style="margin-top:2rem;">
+		<h3 style="font-size:1.1rem;margin-bottom:1rem;">All Articles</h3>
+		<div style="overflow-x:auto;">
+			<table style="width:100%;border-collapse:collapse;">
+				<thead>
+					<tr style="border-bottom:2px solid var(--card-border);">
+						<th style="text-align:left;padding:0.75rem;color:var(--cyan);">Title</th>
+						<th style="text-align:center;padding:0.75rem;color:var(--cyan);">Status</th>
+						<th style="text-align:center;padding:0.75rem;color:var(--cyan);">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for article in articles %}
+					<tr style="border-bottom:1px solid var(--card-border);">
+						<td style="padding:0.75rem;">
+							<a href="{{ url_for('article_detail', slug=article.slug) }}" style="font-weight:500;">{{ article.title }}</a>
+							{% if article.summary %}
+								<div class="muted" style="font-size:0.85rem;margin-top:0.25rem;">{{ article.summary[:80] }}{% if article.summary|length > 80 %}...{% endif %}</div>
+							{% endif %}
+						</td>
+						<td style="text-align:center;padding:0.75rem;">
+							{% if article.published %}
+								<span style="color:var(--cyan);font-size:0.85rem;padding:0.25rem 0.65rem;background:rgba(6,182,212,0.15);border-radius:4px;border:1px solid var(--cyan);">Published</span>
+							{% else %}
+								<span style="color:var(--muted);font-size:0.85rem;padding:0.25rem 0.65rem;background:rgba(160,174,192,0.1);border-radius:4px;border:1px solid var(--muted);">Draft</span>
+							{% endif %}
+						</td>
+						<td style="text-align:center;padding:0.75rem;">
+							<a href="{{ url_for('edit_article', slug=article.slug) }}" style="color:var(--light-purple);font-size:0.9rem;">Edit</a>
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+	{% else %}
+	<p class="muted" style="margin-top:1rem;">No articles yet. Create your first one!</p>
+	{% endif %}
+
+	<p style="margin-top:2rem;"><a class="button" href="{{ url_for('index') }}">Back to Home</a></p>
 </div>
 {% endblock %}
+
