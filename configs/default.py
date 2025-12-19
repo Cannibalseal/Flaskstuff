@@ -14,11 +14,9 @@ class Config:
 	# Secret for sessions and signing. Override with FLASK_SECRET in env.
 	SECRET_KEY = os.environ.get('FLASK_SECRET', 'dev-secret')
 
-	# SQLite DB file used by mdblogs/database.py. Change path if desired.
-	DATABASE = str(BASE_DIR / 'app.db')
-
-	# Schema file path used to initialize the DB
-	SCHEMA = str(BASE_DIR / 'mdblogs' / 'schema.sql')
+	# SQLAlchemy configuration
+	SQLALCHEMY_DATABASE_URI = f'sqlite:///{BASE_DIR / "app.db"}'
+	SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 	# Simple admin credentials used by the demo login handler.
 	ADMIN_USER = os.environ.get('ADMIN_USER', 'admin')

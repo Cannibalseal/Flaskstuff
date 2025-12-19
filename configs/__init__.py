@@ -17,11 +17,11 @@ def get_config():
             cfg = _Cfg()
             # fill attributes from development module if present, otherwise fallback to defaults
             cfg.SECRET_KEY = getattr(dev_mod, 'SECRET_KEY', default_cfg.SECRET_KEY)
-            cfg.DATABASE = getattr(dev_mod, 'DATABASE', default_cfg.DATABASE)
-            cfg.SCHEMA = getattr(dev_mod, 'SCHEMA', default_cfg.SCHEMA)
             cfg.ADMIN_USER = getattr(dev_mod, 'ADMIN_USER', default_cfg.ADMIN_USER)
             cfg.ADMIN_PASS = getattr(dev_mod, 'ADMIN_PASS', default_cfg.ADMIN_PASS)
             cfg.DEBUG = getattr(dev_mod, 'DEBUG', default_cfg.DEBUG)
+            cfg.SQLALCHEMY_DATABASE_URI = getattr(dev_mod, 'SQLALCHEMY_DATABASE_URI', default_cfg.SQLALCHEMY_DATABASE_URI)
+            cfg.SQLALCHEMY_TRACK_MODIFICATIONS = getattr(dev_mod, 'SQLALCHEMY_TRACK_MODIFICATIONS', default_cfg.SQLALCHEMY_TRACK_MODIFICATIONS)
             return cfg
         except Exception:
             # fall back to defaults on any error

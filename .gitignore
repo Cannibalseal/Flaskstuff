@@ -65,6 +65,9 @@ app.db-wal
 *.db-shm
 *.db-wal
 
+# Alembic migrations database
+migrations/versions/*.pyc
+
 # Environment variables / secrets
 .env
 .env.*

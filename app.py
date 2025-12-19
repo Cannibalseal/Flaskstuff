@@ -1,4 +1,3 @@
-import os
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, make_response, flash
 import logging
 from urllib.parse import parse_qs
@@ -13,13 +12,7 @@ app.secret_key = cfg.SECRET_KEY
 # WTForms CSRF protection uses the same secret key
 app.config['WTF_CSRF_ENABLED'] = True
 app.config['WTF_CSRF_TIME_LIMIT'] = None  # Disable CSRF token expiration for testing
-# SQLAlchemy configuration
-DB_PATH = os.path.expanduser(cfg.DATABASE)
-if not os.path.isabs(DB_PATH):
-    DB_PATH = os.path.abspath(DB_PATH)
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# Load other config values into Flask app.config for templates and extensions
+# Load config values into Flask app.config
 app.config.from_object(cfg)
 
 # Initialize SQLAlchemy
