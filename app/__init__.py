@@ -67,4 +67,32 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
     
+    # Register error handlers
+    from flask import render_template
+    
+    @app.errorhandler(404)
+    def not_found_error(error):
+        """Handle 404 errors with humor."""
+        return render_template('errors/404.jinja'), 404
+    
+    @app.errorhandler(500)
+    def internal_error(error):
+        """Handle 500 errors with humor."""
+        db.session.rollback()  # Rollback any failed transactions
+        return render_template('errors/500.jinja'), 500
+    
+    @app.errorhandler(403)
+    def forbidden_error(error):
+        """Handle 403 errors with humor."""
+        return render_template('errors/403.jinja'), 403
+    
+    @app.errorhandler(Exception)
+    def generic_error(error):
+        """Catch-all error handler."""
+        error_code = getattr(error, 'code', 500)
+        error_message = str(error)
+        return render_template('errors/generic.jinja', 
+                             error_code=error_code,
+                             error_message=error_message), error_code
+    
     return app

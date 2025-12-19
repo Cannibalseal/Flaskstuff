@@ -1,0 +1,32 @@
+{% extends "components/_main.jinja" %}
+
+{% block main %}
+<div class="error-container">
+    <div class="error-code">500</div>
+    <div class="error-title">🔥 Oops! The Hamsters Escaped!</div>
+    <div class="error-message">
+        <p>Our servers are having an existential crisis right now. 🤖💭</p>
+        <p class="error-detail">We've sent our elite team of debugging ninjas to fix it. They're very professional.</p>
+    </div>
+    
+    <div class="error-suggestions">
+        <h3>While we're fixing this cosmic glitch:</h3>
+        <ul>
+            <li>☕ Grab a coffee (or three)</li>
+            <li>🔄 Try refreshing the page in a moment</li>
+            <li>🏠 Return to the <a href="{{ url_for('public.index') }}">homepage</a></li>
+            <li>🙏 Send good vibes to our server hamsters</li>
+        </ul>
+    </div>
+    
+    <div class="error-ascii">
+        <pre>
+    ╭━━━━━━━━━━━━╮
+    ┃ PANIC MODE ┃
+    ┃  ACTIVATED  ┃
+    ╰━━━━━━━━━━━━╯
+      ᕕ( ᐛ )ᕗ
+        </pre>
+    </div>
+</div>
+{% endblock %}
