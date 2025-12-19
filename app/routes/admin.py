@@ -1,6 +1,6 @@
 """Admin routes for managing articles and dashboard."""
 
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, abort
 from app.models import db, Article, User
 from app.forms import ArticleForm
 
@@ -8,18 +8,32 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 
 def require_login():
-    """Check if user is logged in and redirect if not."""
+    """Check if user is logged in and is admin."""
     if not session.get('logged_in'):
         return redirect(url_for('auth.login', next=request.url))
     
-    # Check if password change is required
+    # Check if user is admin
     user_id = session.get('user_id')
     if user_id:
         user = db.session.get(User, user_id)
-        if user and user.must_change_password:
-            flash('Please change your password before continuing.', 'info')
-            return redirect(url_for('auth.change_password'))
+        if user:
+            # Check if password change is required
+            if user.must_change_password:
+                flash('Please change your password before continuing.', 'info')
+                return redirect(url_for('auth.change_password'))
+            
+            # Check if user is admin
+            if not user.is_admin:
+                abort(403)
     return None
+
+
+@admin_bp.route('/secret-area')
+def secret_area():
+    """Demo route to show 403 error - intentionally requires no login."""
+    if not session.get('logged_in'):
+        abort(403)
+    return "You found the secret area! 🎉"
 
 
 @admin_bp.route('/')
