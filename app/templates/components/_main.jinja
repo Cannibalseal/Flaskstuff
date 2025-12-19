@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-	{% include '_head.jinja' %}
+	{% include 'components/_head.jinja' %}
 
 	{% with messages = get_flashed_messages(with_categories=true) %}
 		{% if messages %}
@@ -14,13 +14,13 @@
 
 	<body>
 		<div class="container">
-			{% include '_nav.jinja' %}
+			{% include 'components/_nav.jinja' %}
 
 			<main>
 				{% block main %}{% endblock %}
 			</main>
 
-			{% include '_footer.jinja' %}
+			{% include 'components/_footer.jinja' %}
 		</div>
 	</body>
 </html>

@@ -1,4 +1,4 @@
-{% extends "_main.jinja" %}
+{% extends "components/_main.jinja" %}
 
 {% block title %}Article Not Found{% endblock %}
 
@@ -8,8 +8,8 @@
   <p>Sorry — we couldn't find an article with the slug "{{ slug }}". It may have been removed or the URL is incorrect.</p>
   <p>Try browsing the available articles or return home.</p>
   <p>
-    <a class="button" href="{{ url_for('articles') }}">Browse Articles</a>
-    <a class="button" href="{{ url_for('index') }}">Home</a>
+    <a class="button" href="{{ url_for('public.articles') }}">Browse Articles</a>
+    <a class="button" href="{{ url_for('public.index') }}">Home</a>
   </p>
 </div>
 {% endblock %}

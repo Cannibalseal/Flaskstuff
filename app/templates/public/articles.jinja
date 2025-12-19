@@ -1,4 +1,4 @@
-{% extends "_main.jinja" %}
+{% extends "components/_main.jinja" %}
 
 {% block title %}Articles{% endblock %}
 
@@ -9,7 +9,7 @@
 	<ul style="text-align:left; display:inline-block; margin:0; padding-left:1.1rem;">
 		{% for a in articles %}
 			<li>
-				<a href="{{ url_for('article_detail', slug=a.slug) }}"><strong>{{ a.title }}</strong></a> &mdash; <small>{{ a.summary }}</small>
+				<a href="{{ url_for('public.article_detail', slug=a.slug) }}"><strong>{{ a.title }}</strong></a> &mdash; <small>{{ a.summary }}</small>
 			</li>
 		{% else %}
 			<li>No articles available.</li>

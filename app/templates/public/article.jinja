@@ -1,4 +1,4 @@
-{% extends "_main.jinja" %}
+{% extends "components/_main.jinja" %}
 
 {% block title %}{{ article.title }}{% endblock %}
 
@@ -9,6 +9,6 @@
   <div class="article-body">
     {{ article.content | safe }}
   </div>
-  <p style="margin-top:1rem;"><a class="button" href="{{ url_for('articles') }}">Back to Articles</a></p>
+  <p style="margin-top:1rem;"><a class="button" href="{{ url_for('public.articles') }}">Back to Articles</a></p>
 </div>
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends "_main.jinja" %}
+{% extends "components/_main.jinja" %}
 
 {% block title %}{{ 'New Article' if mode == 'new' else 'Edit Article' }}{% endblock %}
 
@@ -37,7 +37,7 @@
 
     <div style="margin-top:2rem; display:flex; gap:0.75rem; justify-content:flex-start;">
       {{ form.submit(class="button") }}
-      <a class="button" href="{{ url_for('view_admin') }}" style="display:flex; align-items:center; justify-content:center;">Cancel</a>
+      <a class="button" href="{{ url_for('admin.dashboard') }}" style="display:flex; align-items:center; justify-content:center;">Cancel</a>
     </div>
   </form>
 </div>
