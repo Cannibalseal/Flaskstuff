@@ -323,7 +323,8 @@ input[type="text"],
 input[type="password"],
 input[type="email"],
 textarea,
-.form-input {
+.form-input,
+.form-control {
   background: rgba(26, 26, 62, 0.5);
   border: 1px solid var(--card-border);
   border-radius: 8px;
@@ -340,7 +341,8 @@ input[type="text"]:focus,
 input[type="password"]:focus,
 input[type="email"]:focus,
 textarea:focus,
-.form-input:focus {
+.form-input:focus,
+.form-control:focus {
   outline: none;
   border-color: var(--cyan);
   box-shadow: 0 0 20px var(--glow);

@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, make_response, flash
 import logging
 from urllib.parse import parse_qs
-from mdblogs.models import db, Article
-from mdblogs.forms import LoginForm, ArticleForm
+from mdblogs.models import db, Article, User
+from mdblogs.forms import LoginForm, ArticleForm, ChangePasswordForm
 from configs import cfg
 
 # Use templates and static files from the `mdblogs` subfolder
@@ -21,6 +21,18 @@ db.init_app(app)
 # Create tables if they don't exist
 with app.app_context():
     db.create_all()
+    
+    # Create default admin user if users table is empty
+    if User.query.count() == 0:
+        admin = User(
+            username=cfg.ADMIN_USER,
+            is_admin=1,
+            must_change_password=1
+        )
+        admin.set_password(cfg.ADMIN_PASS)
+        db.session.add(admin)
+        db.session.commit()
+    
     # Seed sample data if articles table is empty
     if Article.query.count() == 0:
         samples = [
@@ -51,6 +63,15 @@ def view_admin():
     # simple access control: require session flag
     if not session.get('logged_in'):
         return redirect(url_for('view_login', next=url_for('view_admin')))
+    
+    # Check if password change is required
+    user_id = session.get('user_id')
+    if user_id:
+        user = User.query.get(user_id)
+        if user and user.must_change_password:
+            flash('Please change your password before continuing.', 'info')
+            return redirect(url_for('change_password'))
+    
     # Show list of all articles (published and unpublished) for management
     all_articles = [article.to_dict() for article in Article.query.order_by(Article.created_at.desc()).all()]
     return render_template('admin.jinja', articles=all_articles)
@@ -227,11 +248,20 @@ def view_login():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        admin_user = cfg.ADMIN_USER
-        admin_pass = cfg.ADMIN_PASS
         
-        if username == admin_user and password == admin_pass:
+        # Check user in database
+        user = User.query.filter_by(username=username).first()
+        
+        if user and user.check_password(password):
             session['logged_in'] = True
+            session['user_id'] = user.id
+            session['username'] = user.username
+            
+            # Check if password change is required
+            if user.must_change_password:
+                flash('Please change your password before continuing.', 'info')
+                return redirect(url_for('change_password'))
+            
             flash('Successfully logged in!', 'success')
             next_page = request.args.get('next') or url_for('view_admin')
             return redirect(next_page)
@@ -246,9 +276,50 @@ def view_login():
     return render_template('login.jinja', form=form)
 
 
+@app.route('/change-password', methods=['GET', 'POST'])
+def change_password():
+    # Require login
+    if not session.get('logged_in'):
+        return redirect(url_for('view_login'))
+    
+    user_id = session.get('user_id')
+    user = User.query.get(user_id)
+    
+    if not user:
+        flash('User not found.', 'error')
+        return redirect(url_for('view_login'))
+    
+    form = ChangePasswordForm()
+    
+    if form.validate_on_submit():
+        current_password = form.current_password.data
+        new_password = form.new_password.data
+        
+        # Verify current password
+        if not user.check_password(current_password):
+            flash('Current password is incorrect.', 'error')
+        else:
+            # Update password
+            user.set_password(new_password)
+            user.must_change_password = 0
+            db.session.commit()
+            
+            flash('Password changed successfully!', 'success')
+            return redirect(url_for('view_admin'))
+    elif request.method == 'POST':
+        # Form validation failed - flash all errors
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(error, 'error')
+    
+    # Check if this is a forced password change
+    is_required = user.must_change_password == 1
+    return render_template('change_password.jinja', form=form, is_required=is_required)
+
+
 @app.route('/logout')
 def view_logout():
-    session.pop('logged_in', None)
+    session.clear()
     flash('Successfully logged out.', 'info')
     return redirect(url_for('index'))
 

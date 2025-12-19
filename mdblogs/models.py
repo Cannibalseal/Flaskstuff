@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 import re
 
 db = SQLAlchemy()
@@ -65,7 +66,16 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
     is_admin = db.Column(db.Integer, nullable=False, default=0)
+    must_change_password = db.Column(db.Integer, nullable=False, default=1)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    
+    def set_password(self, password):
+        """Hash and set the user's password."""
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        """Check if provided password matches the hash."""
+        return check_password_hash(self.password_hash, password)
     
     def __repr__(self):
         return f'<User {self.username}>'

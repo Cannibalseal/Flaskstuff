@@ -7,8 +7,9 @@
 	<h2>Admin Dashboard</h2>
 	<p class="muted">Manage your blog articles below.</p>
 	
-	<div style="margin:1.5rem 0;">
+	<div style="margin:1.5rem 0; display: flex; gap: 1rem; flex-wrap: wrap;">
 		<a class="button" href="{{ url_for('new_article') }}">+ New Article</a>
+		<a class="button" href="{{ url_for('change_password') }}" style="background: linear-gradient(135deg, var(--dark-purple), var(--blue));">Change Password</a>
 	</div>
 
 	{% if articles %}
