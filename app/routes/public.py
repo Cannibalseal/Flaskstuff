@@ -93,8 +93,13 @@ def articles():
         # For HTML clients (browsers or API tools that expect the page), return
         # the rendered articles list instead of a 302 redirect so the caller
         # immediately receives the updated page content.
-        all_articles = [a.to_dict() for a in Article.query.filter_by(published=1).order_by(Article.created_at.desc()).all()]
-        resp = make_response(render_template('public/articles.jinja', articles=all_articles), 201)
+        page = request.args.get('page', 1, type=int)
+        per_page = 10
+        pagination = Article.query.filter_by(published=1).order_by(Article.created_at.desc()).paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+        all_articles = [a.to_dict() for a in pagination.items]
+        resp = make_response(render_template('public/articles.jinja', articles=all_articles, pagination=pagination), 201)
         # Location header points to the new article detail (REST-friendly)
         try:
             resp.headers['Location'] = url_for('public.article_detail', slug=article.get('slug'))
@@ -102,8 +107,14 @@ def articles():
             pass
         return resp
 
-    all_articles = [a.to_dict() for a in Article.query.filter_by(published=1).order_by(Article.created_at.desc()).all()]
-    return render_template('public/articles.jinja', articles=all_articles)
+    # Pagination for GET requests
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    pagination = Article.query.filter_by(published=1).order_by(Article.created_at.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    all_articles = [a.to_dict() for a in pagination.items]
+    return render_template('public/articles.jinja', articles=all_articles, pagination=pagination)
 
 
 @public_bp.route('/articles/<slug>/')
