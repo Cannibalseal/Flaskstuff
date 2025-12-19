@@ -35,8 +35,12 @@ coverage.xml
 # Flask instance folder
 instance/
 
+# Flask session files
+flask_session/
+
 # Uploaded files / temporary
 uploads/
+static/uploads/
 
 # PyInstaller
 *.manifest
@@ -55,6 +59,11 @@ pip-wheel-metadata/
 # Database files
 *.sqlite3
 *.db
+app.db
+app.db-shm
+app.db-wal
+*.db-shm
+*.db-wal
 
 # Environment variables / secrets
 .env
@@ -73,6 +82,12 @@ desktop.ini
 
 # Logs
 *.log
+*.log.*
+logs/
+
+# Debug files
+debug.log
+flask_debug.log
 
 # Node
 node_modules/

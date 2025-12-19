@@ -6,13 +6,19 @@ It also seeds a few sample articles if the articles table is empty.
 """
 
 import os
+import re
 import sqlite3
 from datetime import datetime
 from configs import cfg
 
 
-DB_PATH = cfg.DATABASE
-SCHEMA_PATH = cfg.SCHEMA
+DB_PATH = os.path.expanduser(cfg.DATABASE)
+if not os.path.isabs(DB_PATH):
+    DB_PATH = os.path.abspath(DB_PATH)
+
+SCHEMA_PATH = os.path.expanduser(cfg.SCHEMA)
+if not os.path.isabs(SCHEMA_PATH):
+    SCHEMA_PATH = os.path.abspath(SCHEMA_PATH)
 
 
 def _get_conn():
@@ -23,7 +29,9 @@ def _get_conn():
 
 def init_db():
     """Create the database file and run the schema if needed."""
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    parent = os.path.dirname(DB_PATH)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
     # If schema file missing, nothing to do
     if not os.path.exists(SCHEMA_PATH):
         return
@@ -32,6 +40,9 @@ def init_db():
         with open(SCHEMA_PATH, 'r', encoding='utf-8') as f:
             sql = f.read()
         conn.executescript(sql)
+        # Enable WAL journaling to improve concurrency with external sqlite tools
+        conn.execute("PRAGMA journal_mode=WAL;")
+        conn.commit()
 
 
 def _seed_if_empty():
@@ -100,4 +111,42 @@ def get_article(slug):
     row = cur.fetchone()
     article = _row_to_article(row)
     conn.close()
+    return article
+
+
+def _generate_slug(title):
+    base = re.sub(r"[^\w]+", "-", (title or '').lower()).strip('-')
+    if not base:
+        base = 'article'
+    conn = _get_conn()
+    cur = conn.cursor()
+    slug = base
+    i = 1
+    while True:
+        cur.execute('SELECT 1 FROM articles WHERE slug = ? LIMIT 1', (slug,))
+        if not cur.fetchone():
+            break
+        i += 1
+        slug = f"{base}-{i}"
+    conn.close()
+    return slug
+
+
+def create_article(title, summary, content, published=0):
+    """Insert a new article and return the created article dict."""
+    init_db()
+    slug = _generate_slug(title)
+    created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    conn = _get_conn()
+    cur = conn.cursor()
+    cur.execute(
+        'INSERT INTO articles (slug, title, summary, content, published, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+        (slug, title, summary, content, int(published), created_at)
+    )
+    conn.commit()
+    conn.close()
+    article = get_article(slug)
+    # Convert date to string for safer serialization
+    if article and article.get('date'):
+        article['date'] = article['date'].strftime('%Y-%m-%d %H:%M:%S')
     return article
