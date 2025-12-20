@@ -114,3 +114,23 @@ def edit_article(slug):
         form.published.data = bool(article.published)
     
     return render_template('admin/article_form.jinja', form=form, mode='edit', article=article.to_dict())
+
+
+@admin_bp.route('/article/delete/<slug>', methods=['POST'])
+def delete_article(slug):
+    """Delete an article."""
+    redirect_response = require_login()
+    if redirect_response:
+        return redirect_response
+    
+    article = Article.query.filter_by(slug=slug).first()
+    if not article:
+        flash('Article not found.', 'error')
+        return redirect(url_for('admin.dashboard'))
+    
+    title = article.title
+    db.session.delete(article)
+    db.session.commit()
+    
+    flash(f'Article "{title}" deleted successfully!', 'success')
+    return redirect(url_for('admin.dashboard'))

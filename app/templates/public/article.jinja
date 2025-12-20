@@ -7,7 +7,7 @@
   <h2>{{ article.title }}</h2>
   <p><em>{{ article.date.strftime('%B %d, %Y') }}</em></p>
   <div class="article-body">
-    {{ article.content | safe }}
+    {{ article.content | markdown }}
   </div>
   <p style="margin-top:1rem;"><a class="button" href="{{ url_for('public.articles') }}">Back to Articles</a></p>
 </div>

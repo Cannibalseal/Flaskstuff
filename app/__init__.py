@@ -3,6 +3,8 @@
 from flask import Flask
 from app.models import db, Article, User
 from config import cfg
+import markdown
+from markupsafe import Markup
 
 
 def create_app():
@@ -23,6 +25,12 @@ def create_app():
     
     # Initialize SQLAlchemy
     db.init_app(app)
+    
+    # Add markdown filter for templates
+    @app.template_filter('markdown')
+    def markdown_filter(text):
+        """Convert markdown to HTML."""
+        return Markup(markdown.markdown(text, extensions=['fenced_code', 'tables', 'nl2br']))
     
     # Create tables and seed data if needed
     with app.app_context():

@@ -337,6 +337,13 @@ textarea,
   font-family: inherit;
 }
 
+/* Make password dots more visible */
+input[type="password"] {
+  color: #ffffff !important;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
 input[type="text"]:focus,
 input[type="password"]:focus,
 input[type="email"]:focus,
@@ -630,4 +637,34 @@ button[type="submit"]:active {
   border-color: rgba(100, 116, 139, 0.3);
 }
 
+/* Bootstrap overrides to preserve custom theme */
+body {
+  color: var(--text) !important;
+}
 
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text) !important;
+}
+
+h1 { 
+  background: linear-gradient(135deg, var(--cyan), var(--light-purple)) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+h2 { 
+  color: var(--cyan) !important;
+}
+
+a:not(.button) {
+  color: var(--cyan) !important;
+}
+
+a:not(.button):hover {
+  color: var(--light-purple) !important;
+}
+
+p, div, span, li {
+  color: var(--text);
+}
