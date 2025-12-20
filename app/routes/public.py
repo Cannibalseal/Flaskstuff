@@ -5,7 +5,6 @@ import logging
 from urllib.parse import parse_qs
 from app.models import db, Article, Newsletter
 from app.forms import NewsletterForm
-from app.core.utils import send_welcome_email
 
 public_bp = Blueprint('public', __name__)
 
@@ -153,9 +152,10 @@ def newsletter_subscribe():
             db.session.add(subscriber)
             db.session.commit()
             
-            # Send welcome email
+            # Send welcome email asynchronously
             try:
-                send_welcome_email(subscriber)
+                from app.core.tasks import send_welcome_email_task
+                send_welcome_email_task.delay(subscriber.email)
                 flash('Thanks for subscribing! Check your email for confirmation.', 'success')
             except Exception as e:
                 flash('Subscription successful, but confirmation email failed to send.', 'info')

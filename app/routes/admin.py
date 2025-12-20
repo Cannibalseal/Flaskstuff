@@ -3,7 +3,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, abort
 from app.models import db, Article, User, Newsletter
 from app.forms import ArticleForm
-from app.core.utils import send_new_article_notification
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -69,13 +68,14 @@ def new_article():
         db.session.add(article)
         db.session.commit()
         
-        # Send newsletter if article is published
+        # Send newsletter asynchronously if article is published
         if published:
             try:
-                send_new_article_notification(article)
-                flash(f'Article "{title}" created and newsletter sent to subscribers!', 'success')
+                from app.core.tasks import send_article_notification_task
+                send_article_notification_task.delay(article.id)
+                flash(f'Article "{title}" created! Newsletter will be sent to subscribers.', 'success')
             except Exception as e:
-                flash(f'Article "{title}" created successfully, but newsletter failed to send: {e}', 'info')
+                flash(f'Article "{title}" created successfully, but newsletter task failed: {e}', 'info')
         else:
             flash(f'Article "{title}" created successfully!', 'success')
         
