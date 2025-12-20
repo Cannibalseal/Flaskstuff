@@ -100,6 +100,19 @@ class ArticleTag(db.Model):
     tag_id = db.Column(db.Integer, db.ForeignKey('tags.id', ondelete='CASCADE'), primary_key=True)
 
 
+class Newsletter(db.Model):
+    """Newsletter subscriber model."""
+    __tablename__ = 'newsletter'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    subscribed_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    is_active = db.Column(db.Integer, nullable=False, default=1)
+    
+    def __repr__(self):
+        return f'<Newsletter {self.email}>'
+
+
 class Comment(db.Model):
     """Comment model for article comments."""
     __tablename__ = 'comments'

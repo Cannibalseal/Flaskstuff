@@ -1,7 +1,8 @@
 """Flask application factory."""
 
 from flask import Flask
-from app.models import db, Article, User
+from app.core import mail, csrf
+from app.models import db, Article, User, Newsletter
 from config import cfg
 import markdown
 from markupsafe import Markup
@@ -25,6 +26,12 @@ def create_app():
     
     # Initialize SQLAlchemy
     db.init_app(app)
+    
+    # Initialize Flask-Mail
+    mail.init_app(app)
+    
+    # Initialize CSRF Protection
+    csrf.init_app(app)
     
     # Add markdown filter for templates
     @app.template_filter('markdown')

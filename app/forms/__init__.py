@@ -2,7 +2,7 @@
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, BooleanField
-from wtforms.validators import DataRequired, Length, Optional, EqualTo
+from wtforms.validators import DataRequired, Length, Optional, EqualTo, Email
 
 
 class LoginForm(FlaskForm):
@@ -95,3 +95,17 @@ class ChangePasswordForm(FlaskForm):
     )
     
     submit = SubmitField('Change Password')
+
+
+class NewsletterForm(FlaskForm):
+    """Form for newsletter subscription."""
+    email = StringField(
+        'Email',
+        validators=[
+            DataRequired(message='Email is required'),
+            Email(message='Please enter a valid email address')
+        ],
+        render_kw={'placeholder': 'your.email@example.com', 'type': 'email'}
+    )
+    
+    submit = SubmitField('Subscribe')

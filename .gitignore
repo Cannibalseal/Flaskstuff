@@ -72,6 +72,9 @@ migrations/versions/*.pyc
 .env
 .env.*
 
+# Email configuration (contains passwords)
+mail_config.py
+
 # Editor / IDE
 .vscode/
 .idea/
@@ -123,6 +126,11 @@ ehthumbs.db
 
 # Temporary files
 tmp/
+*.tmp
+*.temp
+
+# EasyMDE autosave in browser (not needed in repo)
+# Note: These are stored in browser localStorage, not filesystem
 
 # Build artifacts
 *.o

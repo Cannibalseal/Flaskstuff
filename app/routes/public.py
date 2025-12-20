@@ -1,9 +1,11 @@
 """Public routes for viewing articles and pages."""
 
-from flask import Blueprint, render_template, request, jsonify, make_response, flash, url_for
+from flask import Blueprint, render_template, request, jsonify, make_response, flash, url_for, redirect
 import logging
 from urllib.parse import parse_qs
-from app.models import db, Article
+from app.models import db, Article, Newsletter
+from app.forms import NewsletterForm
+from app.core.utils import send_welcome_email
 
 public_bp = Blueprint('public', __name__)
 
@@ -125,3 +127,66 @@ def article_detail(slug):
         return render_template('public/article_not_found.jinja', slug=slug), 404
     article = article_obj.to_dict()
     return render_template('public/article.jinja', article=article)
+
+
+@public_bp.route('/newsletter/subscribe', methods=['POST'])
+def newsletter_subscribe():
+    """Handle newsletter subscription."""
+    form = NewsletterForm()
+    
+    if form.validate_on_submit():
+        email = form.email.data.lower().strip()
+        
+        # Check if email already exists
+        existing = Newsletter.query.filter_by(email=email).first()
+        if existing:
+            if existing.is_active:
+                flash('This email is already subscribed to our newsletter!', 'info')
+            else:
+                # Reactivate subscription
+                existing.is_active = 1
+                db.session.commit()
+                flash('Welcome back! Your subscription has been reactivated.', 'success')
+        else:
+            # Add new subscriber
+            subscriber = Newsletter(email=email)
+            db.session.add(subscriber)
+            db.session.commit()
+            
+            # Send welcome email
+            try:
+                send_welcome_email(subscriber)
+                flash('Thanks for subscribing! Check your email for confirmation.', 'success')
+            except Exception as e:
+                flash('Subscription successful, but confirmation email failed to send.', 'info')
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(error, 'error')
+    
+    # Redirect back to the page they came from, or home
+    return redirect(request.referrer or url_for('public.index'))
+
+
+@public_bp.route('/newsletter/unsubscribe')
+def newsletter_unsubscribe():
+    """Handle newsletter unsubscription."""
+    email = request.args.get('email', '').lower().strip()
+    
+    if not email:
+        flash('Invalid unsubscribe link.', 'error')
+        return redirect(url_for('public.index'))
+    
+    subscriber = Newsletter.query.filter_by(email=email).first()
+    
+    if subscriber and subscriber.is_active:
+        subscriber.is_active = 0
+        db.session.commit()
+        flash('You have been successfully unsubscribed from our newsletter.', 'success')
+    elif subscriber:
+        flash('You are already unsubscribed.', 'info')
+    else:
+        flash('Email not found in our subscription list.', 'info')
+    
+    return redirect(url_for('public.index'))
+

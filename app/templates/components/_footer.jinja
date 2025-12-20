@@ -1,3 +1,22 @@
 <footer class="site-footer">
+  <!-- Newsletter Signup -->
+  <div style="max-width: 500px; margin: 0 auto 2rem;">
+    <h3 style="color: var(--cyan); font-size: 1.2rem; margin-bottom: 0.75rem;">📬 Subscribe to Newsletter</h3>
+    <p class="muted" style="font-size: 0.9rem; margin-bottom: 1rem;">Get notified when we publish new articles</p>
+    
+    <form method="POST" action="{{ url_for('public.newsletter_subscribe') }}" style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token is defined else '' }}">
+      <input 
+        type="email" 
+        name="email" 
+        placeholder="your.email@example.com" 
+        required
+        style="flex: 1; min-width: 200px; background: rgba(26, 26, 62, 0.5); border: 1px solid var(--card-border); border-radius: 8px; padding: 0.65rem 1rem; color: var(--text); font-size: 0.9rem;"
+      >
+      <button type="submit" class="button" style="margin: 0;">Subscribe</button>
+    </form>
+  </div>
+  
   <div class="muted">© 2025 Sealy — All rights reserved.</div>
 </footer>
+

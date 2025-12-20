@@ -1,8 +1,9 @@
 """Admin routes for managing articles and dashboard."""
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, abort
-from app.models import db, Article, User
+from app.models import db, Article, User, Newsletter
 from app.forms import ArticleForm
+from app.core.utils import send_new_article_notification
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -68,7 +69,16 @@ def new_article():
         db.session.add(article)
         db.session.commit()
         
-        flash(f'Article "{title}" created successfully!', 'success')
+        # Send newsletter if article is published
+        if published:
+            try:
+                send_new_article_notification(article)
+                flash(f'Article "{title}" created and newsletter sent to subscribers!', 'success')
+            except Exception as e:
+                flash(f'Article "{title}" created successfully, but newsletter failed to send: {e}', 'info')
+        else:
+            flash(f'Article "{title}" created successfully!', 'success')
+        
         return redirect(url_for('admin.dashboard'))
     elif request.method == 'POST':
         for field, errors in form.errors.items():
@@ -134,3 +144,14 @@ def delete_article(slug):
     
     flash(f'Article "{title}" deleted successfully!', 'success')
     return redirect(url_for('admin.dashboard'))
+
+
+@admin_bp.route('/newsletter/subscribers')
+def newsletter_subscribers():
+    """View all newsletter subscribers."""
+    redirect_response = require_login()
+    if redirect_response:
+        return redirect_response
+    
+    subscribers = Newsletter.query.order_by(Newsletter.subscribed_at.desc()).all()
+    return render_template('admin/newsletter_subscribers.jinja', subscribers=subscribers)
