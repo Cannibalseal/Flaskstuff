@@ -1,7 +1,7 @@
 """Public routes for viewing articles and pages."""
 
 from flask import Blueprint, render_template, request, jsonify, make_response, flash, url_for, redirect
-from app.models import db, Article, Newsletter
+from app.models import db, Article, Newsletter, Comment
 from app.forms import NewsletterForm
 import logging
 

@@ -124,6 +124,9 @@ def change_password():
             user.must_change_password = 0
             db.session.commit()
             
+            # Update session to reflect password change (prevent re-check loop)
+            session['must_change_password'] = False
+            
             flash('Password changed successfully!', 'success')
             return redirect(url_for('admin.dashboard'))
     elif request.method == 'POST':

@@ -21,8 +21,8 @@ def require_login():
     if user_id:
         user = db.session.get(User, user_id)
         if user:
-            # Check if password change is required
-            if user.must_change_password:
+            # Check if password change is required (using database value, not session)
+            if user.must_change_password == 1:
                 flash('Please change your password before continuing.', 'info')
                 return redirect(url_for('auth.change_password'))
             
@@ -41,8 +41,8 @@ def require_writer_or_admin():
     if user_id:
         user = db.session.get(User, user_id)
         if user:
-            # Check if password change is required
-            if user.must_change_password:
+            # Check if password change is required (using explicit == 1)
+            if user.must_change_password == 1:
                 flash('Please change your password before continuing.', 'info')
                 return redirect(url_for('auth.change_password'))
             
