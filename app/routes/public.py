@@ -108,13 +108,14 @@ def newsletter_subscribe():
             db.session.add(subscriber)
             db.session.commit()
             
-            # Send welcome email (synchronous for now, no Celery)
+            # Send welcome email in background thread (works without Redis/Celery!)
             try:
-                from app.core.tasks import send_welcome_email_sync
-                send_welcome_email_sync(subscriber.email)
+                from app.core.tasks import send_welcome_email_background
+                send_welcome_email_background(subscriber.email)
                 flash('Thanks for subscribing! Check your email for confirmation.', 'success')
             except Exception as e:
-                flash(f'Subscription successful, but confirmation email failed: {str(e)}', 'warning')
+                logger.error(f"Error starting background email thread: {e}")
+                flash('Subscription successful, but confirmation email may be delayed.', 'warning')
     else:
         for field, errors in form.errors.items():
             for error in errors:

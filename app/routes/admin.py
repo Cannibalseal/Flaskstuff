@@ -92,14 +92,14 @@ def new_article():
         db.session.add(article)
         db.session.commit()
         
-        # Send newsletter if article is published (synchronous for now, no Celery)
+        # Send newsletter in background thread if article is published (works without Redis/Celery!)
         if published:
             try:
-                from app.core.tasks import send_article_notification_sync
-                send_article_notification_sync(article.id)
-                flash(f'Article "{title}" created and notifications sent!', 'success')
+                from app.core.tasks import send_article_notification_background
+                send_article_notification_background(article.id)
+                flash(f'Article "{title}" created and notifications are being sent!', 'success')
             except Exception as e:
-                flash(f'Article "{title}" created, but email notifications failed: {str(e)}', 'warning')
+                flash(f'Article "{title}" created, but email notifications may be delayed: {str(e)}', 'warning')
         else:
             flash(f'Article "{title}" created successfully!', 'success')
         

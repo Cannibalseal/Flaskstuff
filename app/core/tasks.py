@@ -5,6 +5,7 @@ from flask_mail import Message
 from app.core import mail
 from app.models import Newsletter, Article
 import logging
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -749,3 +750,60 @@ To unsubscribe from these notifications: {unsubscribe_url}
     
     logger.info(f"Article notifications sent: {sent_count} successful, {failed_count} failed")
     return sent_count
+
+
+# ========================================
+# Threading-based Background Email Sending
+# ========================================
+# These functions send emails in background threads without requiring Redis/Celery
+
+def send_welcome_email_async(app, subscriber_email):
+    """Send welcome email in a background thread."""
+    with app.app_context():
+        try:
+            send_welcome_email_sync(subscriber_email)
+        except Exception as e:
+            logger.error(f"Background thread error sending welcome email: {e}")
+
+
+def send_article_notification_async(app, article_id):
+    """Send article notifications in a background thread."""
+    with app.app_context():
+        try:
+            send_article_notification_sync(article_id)
+        except Exception as e:
+            logger.error(f"Background thread error sending article notifications: {e}")
+
+
+def send_welcome_email_background(subscriber_email):
+    """
+    Send welcome email in background thread (no Redis/Celery needed).
+    This is perfect for free hosting tiers like Render.com.
+    """
+    from flask import current_app
+    app = current_app._get_current_object()
+    
+    thread = threading.Thread(
+        target=send_welcome_email_async,
+        args=(app, subscriber_email),
+        daemon=True
+    )
+    thread.start()
+    logger.info(f"Started background thread to send welcome email to {subscriber_email}")
+
+
+def send_article_notification_background(article_id):
+    """
+    Send article notifications in background thread (no Redis/Celery needed).
+    This is perfect for free hosting tiers like Render.com.
+    """
+    from flask import current_app
+    app = current_app._get_current_object()
+    
+    thread = threading.Thread(
+        target=send_article_notification_async,
+        args=(app, article_id),
+        daemon=True
+    )
+    thread.start()
+    logger.info(f"Started background thread to send article notifications for article {article_id}")
