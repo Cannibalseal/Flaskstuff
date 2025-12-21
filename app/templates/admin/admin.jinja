@@ -32,7 +32,7 @@
 					{% for article in articles %}
 					<tr style="border-bottom:1px solid var(--card-border);">
 						<td style="padding:0.75rem;">
-							<a href="{{ url_for('public.article', slug=article.slug) }}" style="font-weight:500;">{{ article.title }}</a>
+							<a href="{{ url_for('public.article_detail', slug=article.slug) }}" style="font-weight:500;">{{ article.title }}</a>
 							{% if article.summary %}
 								<div class="muted" style="font-size:0.85rem;margin-top:0.25rem;">{{ article.summary[:80] }}{% if article.summary|length > 80 %}...{% endif %}</div>
 							{% endif %}

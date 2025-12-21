@@ -321,8 +321,6 @@ def user_activity(user_id):
         flash('User not found.', 'error')
         return redirect(url_for('admin.users'))
     
-    from app.models import Comment, Like
-    
     # Get user's articles
     articles = Article.query.filter_by(author_id=user_id).order_by(Article.created_at.desc()).all()
     

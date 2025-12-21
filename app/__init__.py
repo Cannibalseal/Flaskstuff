@@ -35,15 +35,6 @@ def create_app():
     # Initialize CSRF Protection
     csrf.init_app(app)
     
-    # Exempt API endpoints from CSRF (if any JSON endpoints exist)
-    # CSRF is still enforced for all form submissions
-    @csrf.exempt
-    def csrf_exempt_for_api(endpoint):
-        # Only exempt if it's a JSON API endpoint
-        if endpoint and 'api' in endpoint:
-            return True
-        return False
-    
     # Note: Using threading for background emails instead of Celery/Redis
     # See app/core/tasks.py for send_welcome_email_background() and send_article_notification_background()
     

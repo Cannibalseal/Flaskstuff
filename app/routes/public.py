@@ -164,7 +164,7 @@ def add_comment(slug):
     content = request.form.get('content', '').strip()
     if not content:
         flash('Comment cannot be empty.', 'error')
-        return redirect(url_for('public.article', slug=slug))
+        return redirect(url_for('public.article_detail', slug=slug))
     
     # Create comment
     comment = Comment(
@@ -177,7 +177,7 @@ def add_comment(slug):
     db.session.commit()
     
     flash('Comment added successfully!', 'success')
-    return redirect(url_for('public.article', slug=slug))
+    return redirect(url_for('public.article_detail', slug=slug))
 
 
 @public_bp.route('/articles/<slug>/comment/<int:comment_id>/delete', methods=['POST'])
@@ -195,13 +195,13 @@ def delete_comment(slug, comment_id):
     # Check if user owns the comment or is admin
     if comment.user_id != user_id and not is_admin:
         flash('You do not have permission to delete this comment.', 'error')
-        return redirect(url_for('public.article', slug=slug))
+        return redirect(url_for('public.article_detail', slug=slug))
     
     db.session.delete(comment)
     db.session.commit()
     
     flash('Comment deleted successfully!', 'success')
-    return redirect(url_for('public.article', slug=slug))
+    return redirect(url_for('public.article_detail', slug=slug))
 
 
 @public_bp.route('/articles/<slug>/like', methods=['POST'])

@@ -11,7 +11,7 @@
 		<div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem;">
 			{% for a in articles %}
 				<div style="border: 1px solid var(--card-border); border-radius: 8px; padding: 1.25rem; background: var(--card); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-					<a href="{{ url_for('public.article', slug=a.slug) }}" style="text-decoration: none; color: var(--text);">
+					<a href="{{ url_for('public.article_detail', slug=a.slug) }}" style="text-decoration: none; color: var(--text);">
 						<h3 style="margin-bottom: 0.5rem; color: var(--cyan);">{{ a.title }}</h3>
 					</a>
 					
