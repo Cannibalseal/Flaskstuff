@@ -20,10 +20,18 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    # Use batch mode for SQLite
-    with op.batch_alter_table('articles', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('author_id', sa.Integer(), nullable=True))
-        batch_op.create_foreign_key('fk_articles_author', 'users', ['author_id'], ['id'])
+    # Add column with error handling
+    try:
+        op.add_column('articles', sa.Column('author_id', sa.Integer(), nullable=True))
+    except:
+        pass  # Column already exists
+    
+    # Add foreign key with error handling
+    try:
+        with op.batch_alter_table('articles', schema=None) as batch_op:
+            batch_op.create_foreign_key('fk_articles_author', 'users', ['author_id'], ['id'])
+    except:
+        pass  # Foreign key already exists
 
 
 def downgrade() -> None:

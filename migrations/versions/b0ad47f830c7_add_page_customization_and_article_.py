@@ -20,14 +20,21 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    # Use batch mode for SQLite compatibility
-    with op.batch_alter_table('users', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('can_write_articles', sa.Integer(), nullable=False, server_default='0'))
-        batch_op.add_column(sa.Column('custom_bg_color', sa.String(length=20), nullable=True, server_default='#0a0e27'))
-        batch_op.add_column(sa.Column('custom_text_color', sa.String(length=20), nullable=True, server_default='#e2e8f0'))
-        batch_op.add_column(sa.Column('custom_accent_color', sa.String(length=20), nullable=True, server_default='#06b6d4'))
-        batch_op.add_column(sa.Column('custom_font_size', sa.String(length=10), nullable=True, server_default='16px'))
-        batch_op.add_column(sa.Column('custom_font_family', sa.String(length=100), nullable=True, server_default='system-ui'))
+    # Add columns with error handling to skip if they already exist
+    columns_to_add = [
+        ('can_write_articles', sa.Column('can_write_articles', sa.Integer(), nullable=False, server_default='0')),
+        ('custom_bg_color', sa.Column('custom_bg_color', sa.String(length=20), nullable=True, server_default='#0a0e27')),
+        ('custom_text_color', sa.Column('custom_text_color', sa.String(length=20), nullable=True, server_default='#e2e8f0')),
+        ('custom_accent_color', sa.Column('custom_accent_color', sa.String(length=20), nullable=True, server_default='#06b6d4')),
+        ('custom_font_size', sa.Column('custom_font_size', sa.String(length=10), nullable=True, server_default='16px')),
+        ('custom_font_family', sa.Column('custom_font_family', sa.String(length=100), nullable=True, server_default='system-ui')),
+    ]
+    
+    for col_name, col_def in columns_to_add:
+        try:
+            op.add_column('users', col_def)
+        except:
+            pass  # Column already exists, skip
 
 
 def downgrade() -> None:
