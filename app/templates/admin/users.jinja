@@ -93,7 +93,11 @@
                                                     title="{{ 'Revoke Admin' if user.is_admin else 'Grant Admin' }}"
                                                     onclick="return confirm('Are you sure you want to {{ 'revoke' if user.is_admin else 'grant' }} admin privileges?')">
                                                 <i class="bi bi-shield-{{ 'slash' if user.is_admin else 'check' }}"></i>
-                                            </button>toggle_writer', user_id=user.id) }}" class="d-inline">
+                                            </button>
+                                        </form>
+                                        
+                                        <form method="POST" action="{{ url_for('admin.toggle_writer', user_id=user.id) }}" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                             <button type="submit" 
                                                     class="btn btn-sm btn-outline-success" 
                                                     title="{{ 'Revoke Writer' if user.can_write_articles else 'Grant Writer' }}"
@@ -102,10 +106,8 @@
                                             </button>
                                         </form>
                                         
-                                        <form method="POST" action="{{ url_for('admin.
-                                        </form>
-                                        
-                                        <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}" class="d-inline">                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}" class="d-inline">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                             <button type="submit" 
                                                     class="btn btn-sm btn-outline-danger" 
                                                     title="Delete User"
