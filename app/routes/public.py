@@ -1,7 +1,7 @@
 """Public routes for viewing articles and pages."""
 
-from flask import Blueprint, render_template, request, jsonify, make_response, flash, url_for, redirect
-from app.models import db, Article, Newsletter, Comment
+from flask import Blueprint, render_template, request, jsonify, flash, url_for, redirect, session
+from app.models import db, Article, Newsletter, Comment, Like
 from app.forms import NewsletterForm
 import logging
 
@@ -65,9 +65,6 @@ def articles():
 @public_bp.route('/articles/<slug>/')
 def article_detail(slug):
     """View a single article."""
-    from app.models import Comment
-    from flask import session
-    
     article_obj = Article.query.filter_by(slug=slug).first()
     if not article_obj:
         return render_template('public/article_not_found.jinja', slug=slug), 404
@@ -151,18 +148,9 @@ def newsletter_unsubscribe():
     return redirect(url_for('public.index'))
 
 
-@public_bp.route('/article/<slug>/')
-def article(slug):
-    """Alternative route for articles (matches new URL pattern)."""
-    return article_detail(slug)
-
-
 @public_bp.route('/articles/<slug>/comment', methods=['POST'])
 def add_comment(slug):
     """Add a comment to an article."""
-    from app.models import Comment
-    from flask import session
-    
     # Check if user is logged in
     if not session.get('logged_in'):
         flash('You must be logged in to comment.', 'error')
@@ -195,8 +183,6 @@ def add_comment(slug):
 @public_bp.route('/articles/<slug>/comment/<int:comment_id>/delete', methods=['POST'])
 def delete_comment(slug, comment_id):
     """Delete a comment (owner or admin only)."""
-    from flask import session
-    
     # Check if user is logged in
     if not session.get('logged_in'):
         flash('You must be logged in to delete comments.', 'error')
@@ -221,9 +207,6 @@ def delete_comment(slug, comment_id):
 @public_bp.route('/articles/<slug>/like', methods=['POST'])
 def toggle_like(slug):
     """Toggle like on an article."""
-    from app.models import Like
-    from flask import session
-    
     # Check if user is logged in
     if not session.get('logged_in'):
         return jsonify({'error': 'Must be logged in'}), 401

@@ -7,9 +7,6 @@ import re
 
 db = SQLAlchemy()
 
-# Import SiteSettings model
-from app.models.site_settings import SiteSettings
-
 
 class Article(db.Model):
     """Article model for blog posts."""
@@ -241,3 +238,8 @@ class Like(db.Model):
     
     def __repr__(self):
         return f'<Like article={self.article_id} user={self.user_id}>'
+
+
+# Initialize SiteSettings with db
+from app.models.site_settings import init_site_settings
+SiteSettings = init_site_settings(db)

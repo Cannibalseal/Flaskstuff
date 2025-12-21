@@ -157,7 +157,7 @@ def create_app():
         # Rollback database on any error
         try:
             db.session.rollback()
-        except:
+        except Exception:
             pass
         
         return render_template('errors/generic.jinja', 

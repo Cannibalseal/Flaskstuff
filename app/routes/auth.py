@@ -81,6 +81,7 @@ def register():
             session['username'] = new_user.username
             session['is_admin'] = False
             session['can_write_articles'] = False
+            session['must_change_password'] = False
             
             flash('Account created successfully! Welcome!', 'success')
             
