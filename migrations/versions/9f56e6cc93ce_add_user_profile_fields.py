@@ -32,14 +32,23 @@ def upgrade() -> None:
     except:
         pass  # Table doesn't exist, skip
     
-    op.add_column('users', sa.Column('display_name', sa.String(length=100), nullable=True))
-    op.add_column('users', sa.Column('email', sa.String(length=120), nullable=True))
-    op.add_column('users', sa.Column('bio', sa.Text(), nullable=True))
-    op.add_column('users', sa.Column('profile_picture', sa.String(length=200), nullable=True))
-    op.add_column('users', sa.Column('location', sa.String(length=100), nullable=True))
-    op.add_column('users', sa.Column('website', sa.String(length=200), nullable=True))
-    op.add_column('users', sa.Column('twitter', sa.String(length=100), nullable=True))
-    op.add_column('users', sa.Column('github', sa.String(length=100), nullable=True))
+    # Add columns only if they don't already exist
+    columns_to_add = [
+        ('display_name', sa.Column('display_name', sa.String(length=100), nullable=True)),
+        ('email', sa.Column('email', sa.String(length=120), nullable=True)),
+        ('bio', sa.Column('bio', sa.Text(), nullable=True)),
+        ('profile_picture', sa.Column('profile_picture', sa.String(length=200), nullable=True)),
+        ('location', sa.Column('location', sa.String(length=100), nullable=True)),
+        ('website', sa.Column('website', sa.String(length=200), nullable=True)),
+        ('twitter', sa.Column('twitter', sa.String(length=100), nullable=True)),
+        ('github', sa.Column('github', sa.String(length=100), nullable=True)),
+    ]
+    
+    for col_name, col_def in columns_to_add:
+        try:
+            op.add_column('users', col_def)
+        except:
+            pass  # Column already exists, skip
     # ### end Alembic commands ###
 
 
