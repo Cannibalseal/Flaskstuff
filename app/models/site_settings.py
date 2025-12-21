@@ -54,9 +54,49 @@ class SiteSettings(db.Model):
     @staticmethod
     def get_settings():
         """Get or create site settings."""
-        settings = SiteSettings.query.first()
-        if not settings:
-            settings = SiteSettings()
-            db.session.add(settings)
-            db.session.commit()
-        return settings
+        try:
+            settings = SiteSettings.query.first()
+            if not settings:
+                # Create default settings
+                settings = SiteSettings(
+                    site_name='My Blog',
+                    site_tagline='Welcome to our community',
+                    site_description='A place for sharing ideas',
+                    welcome_page_content='<h1>Welcome!</h1><p>This is the welcome page.</p>',
+                    about_page_content='<h1>About Us</h1><p>Learn more about us here.</p>',
+                    footer_content='<p>&copy; 2025 My Blog. All rights reserved.</p>',
+                    custom_css='/* Add your custom CSS here */',
+                    custom_js='// Add your custom JavaScript here',
+                    meta_keywords='blog, articles, community',
+                    meta_description='A community blog platform',
+                    primary_color='#06b6d4',
+                    secondary_color='#8b5cf6',
+                    enable_comments=True,
+                    enable_likes=True,
+                    enable_newsletter=True,
+                    enable_social_sharing=True
+                )
+                db.session.add(settings)
+                db.session.commit()
+            return settings
+        except Exception as e:
+            # If database error, return default settings object (not saved to DB)
+            db.session.rollback()
+            return SiteSettings(
+                site_name='My Blog',
+                site_tagline='Welcome to our community',
+                site_description='A place for sharing ideas',
+                welcome_page_content='<h1>Welcome!</h1><p>This is the welcome page.</p>',
+                about_page_content='<h1>About Us</h1><p>Learn more about us here.</p>',
+                footer_content='<p>&copy; 2025 My Blog. All rights reserved.</p>',
+                custom_css='',
+                custom_js='',
+                meta_keywords='blog, articles, community',
+                meta_description='A community blog platform',
+                primary_color='#06b6d4',
+                secondary_color='#8b5cf6',
+                enable_comments=True,
+                enable_likes=True,
+                enable_newsletter=True,
+                enable_social_sharing=True
+            )

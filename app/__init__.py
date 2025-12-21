@@ -101,8 +101,17 @@ def create_app():
     @app.context_processor
     def inject_site_settings():
         """Make site settings available to all templates."""
+        def get_settings_wrapper():
+            """Wrapper to safely get settings with error handling."""
+            try:
+                return SiteSettings.get_settings()
+            except Exception as e:
+                # Return default settings if database error
+                app.logger.error(f"Error loading site settings: {e}")
+                return SiteSettings()
+        
         return {
-            'get_site_settings': SiteSettings.get_settings
+            'get_site_settings': get_settings_wrapper
         }
     
     # Register error handlers

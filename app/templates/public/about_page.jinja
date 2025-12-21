@@ -6,6 +6,11 @@
 {% set site_settings = get_site_settings() %}
 
 <div class="card">
-  {{ site_settings.about_page_content | safe }}
+  {% if site_settings.about_page_content and site_settings.about_page_content.strip() %}
+    {{ site_settings.about_page_content | safe }}
+  {% else %}
+    <h1>About Us</h1>
+    <p>This is the about page. You can customize this content from the admin panel.</p>
+  {% endif %}
 </div>
 {% endblock %}

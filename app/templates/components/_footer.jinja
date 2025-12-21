@@ -23,7 +23,11 @@
   
   <!-- Custom Footer Content -->
   <div class="custom-footer-content" style="margin-bottom: 1rem;">
-    {{ site_settings.footer_content | safe }}
+    {% if site_settings.footer_content and site_settings.footer_content.strip() %}
+      {{ site_settings.footer_content | safe }}
+    {% else %}
+      <p>&copy; 2025 My Blog. All rights reserved.</p>
+    {% endif %}
   </div>
 </footer>
 
