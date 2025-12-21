@@ -16,21 +16,15 @@ def require_login():
     if not session.get('logged_in'):
         return redirect(url_for('auth.login', next=request.url))
     
+    # Check session flag first (faster)
+    if session.get('must_change_password'):
+        flash('Please change your password before continuing.', 'info')
+        return redirect(url_for('auth.change_password'))
+    
     # Check if user is admin
-    user_id = session.get('user_id')
-    if user_id:
-        # Expire all cached objects and refresh from database
-        db.session.expire_all()
-        user = db.session.get(User, user_id)
-        if user:
-            # Check if password change is required (using database value)
-            if user.must_change_password == 1:
-                flash('Please change your password before continuing.', 'info')
-                return redirect(url_for('auth.change_password'))
-            
-            # Check if user is admin
-            if not user.is_admin:
-                abort(403)
+    if not session.get('is_admin'):
+        abort(403)
+    
     return None
 
 
@@ -39,21 +33,19 @@ def require_writer_or_admin():
     if not session.get('logged_in'):
         return redirect(url_for('auth.login', next=request.url))
     
-    user_id = session.get('user_id')
-    if user_id:
-        # Expire cached objects and refresh from database
-        db.session.expire_all()
-        user = db.session.get(User, user_id)
-        if user:
-            # Check if password change is required (using explicit == 1)
-            if user.must_change_password == 1:
-                flash('Please change your password before continuing.', 'info')
-                return redirect(url_for('auth.change_password'))
-            
-            # Check if user can write articles or is admin
-            if not user.can_write_articles and not user.is_admin:
-                flash('You do not have permission to create articles.', 'error')
-                abort(403)
+    # Check session flag first (faster)
+    if session.get('must_change_password'):
+        flash('Please change your password before continuing.', 'info')
+        return redirect(url_for('auth.change_password'))
+    
+    # Check permissions from session
+    is_admin = session.get('is_admin')
+    can_write = session.get('can_write_articles')
+    
+    if not (is_admin or can_write):
+        flash('You do not have permission to create articles.', 'error')
+        abort(403)
+    
     return None
 
 

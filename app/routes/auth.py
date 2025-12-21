@@ -26,6 +26,7 @@ def login():
             session['username'] = user.username
             session['is_admin'] = bool(user.is_admin)
             session['can_write_articles'] = bool(user.can_write_articles)
+            session['must_change_password'] = bool(user.must_change_password)
             
             # Check if password change is required
             if user.must_change_password:
@@ -119,14 +120,16 @@ def change_password():
         if not user.check_password(current_password):
             flash('Current password is incorrect.', 'error')
         else:
-            # Update password
+            # Update password and clear the flag
             user.set_password(new_password)
             user.must_change_password = 0
             db.session.commit()
             
+            # Update session to reflect change
+            session['must_change_password'] = False
+            
             # Clear all cached objects to force fresh database queries
             db.session.expire_all()
-            db.session.close()
             
             flash('Password changed successfully!', 'success')
             return redirect(url_for('admin.dashboard'))
