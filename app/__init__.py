@@ -98,7 +98,7 @@ def create_app():
     app.register_blueprint(profile_bp)
     
     # Register context processor for site settings
-    from app.models.site_settings import SiteSettings
+    from app.models import SiteSettings
     
     @app.context_processor
     def inject_site_settings():
