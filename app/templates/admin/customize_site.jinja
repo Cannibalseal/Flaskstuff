@@ -266,21 +266,21 @@
             <div class="form-field">
                 <label for="welcome_page_content">Welcome Page Content (HTML)</label>
                 <div class="editor-container">
-                    <textarea id="welcome_page_content" name="welcome_page_content">{{ settings.welcome_page_content }}</textarea>
+                    <textarea id="welcome_page_content" name="welcome_page_content">{{ settings.welcome_page_content or '<h1>Welcome!</h1><p>This is the welcome page.</p>' }}</textarea>
                 </div>
             </div>
 
             <div class="form-field">
                 <label for="about_page_content">About Page Content (HTML)</label>
                 <div class="editor-container">
-                    <textarea id="about_page_content" name="about_page_content">{{ settings.about_page_content }}</textarea>
+                    <textarea id="about_page_content" name="about_page_content">{{ settings.about_page_content or '<h1>About Us</h1><p>Learn more about us here.</p>' }}</textarea>
                 </div>
             </div>
 
             <div class="form-field">
                 <label for="footer_content">Footer Content (HTML)</label>
                 <div class="editor-container">
-                    <textarea id="footer_content" name="footer_content">{{ settings.footer_content }}</textarea>
+                    <textarea id="footer_content" name="footer_content">{{ settings.footer_content or '<p>&copy; 2025 My Blog. All rights reserved.</p>' }}</textarea>
                 </div>
             </div>
         </div>
@@ -298,7 +298,7 @@
                     Write custom CSS rules to style your site. Changes apply globally.
                 </small>
                 <div class="editor-container">
-                    <textarea id="custom_css" name="custom_css">{{ settings.custom_css }}</textarea>
+                    <textarea id="custom_css" name="custom_css">{{ settings.custom_css or '/* Add your custom CSS here */' }}</textarea>
                 </div>
             </div>
 
@@ -308,7 +308,7 @@
                     Add custom JavaScript for advanced functionality. Use with caution!
                 </small>
                 <div class="editor-container">
-                    <textarea id="custom_js" name="custom_js">{{ settings.custom_js }}</textarea>
+                    <textarea id="custom_js" name="custom_js">{{ settings.custom_js or '// Add your custom JavaScript here' }}</textarea>
                 </div>
             </div>
         </div>

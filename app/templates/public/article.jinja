@@ -140,9 +140,12 @@
               </div>
               {% if session.logged_in and (comment.user.id == session.user_id or session.is_admin) %}
               <form method="POST" action="{{ url_for('public.delete_comment', slug=article.slug, comment_id=comment.id) }}" style="margin: 0;" onsubmit="return confirm('Are you sure you want to delete this comment?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="button" style="padding: 0.25rem 0.5rem; font-size: 0.85rem; background: rgba(220, 38, 38, 0.1); border-color: #dc2626; color: #dc2626;" title="Delete comment">
                   <i class="bi bi-trash"></i>
                 </button>
+              </form>
+              {% endif %}
               </form>
               {% endif %}
             </div>
