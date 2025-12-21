@@ -17,9 +17,11 @@ def create_app():
     # Secret key for session
     app.secret_key = cfg.SECRET_KEY
     
-    # WTForms CSRF protection
+    # WTForms CSRF protection - more lenient settings
     app.config['WTF_CSRF_ENABLED'] = True
-    app.config['WTF_CSRF_TIME_LIMIT'] = None
+    app.config['WTF_CSRF_TIME_LIMIT'] = None  # No time limit
+    app.config['WTF_CSRF_CHECK_DEFAULT'] = False  # Don't check on all requests
+    app.config['WTF_CSRF_METHODS'] = ['POST', 'PUT', 'PATCH', 'DELETE']  # Only protect mutation methods
     
     # Load config values into Flask app.config
     app.config.from_object(cfg)
@@ -32,6 +34,15 @@ def create_app():
     
     # Initialize CSRF Protection
     csrf.init_app(app)
+    
+    # Exempt API endpoints from CSRF (if any JSON endpoints exist)
+    # CSRF is still enforced for all form submissions
+    @csrf.exempt
+    def csrf_exempt_for_api(endpoint):
+        # Only exempt if it's a JSON API endpoint
+        if endpoint and 'api' in endpoint:
+            return True
+        return False
     
     # Note: Using threading for background emails instead of Celery/Redis
     # See app/core/tasks.py for send_welcome_email_background() and send_article_notification_background()
@@ -136,8 +147,19 @@ def create_app():
     @app.errorhandler(Exception)
     def generic_error(error):
         """Catch-all error handler."""
+        import traceback
+        app.logger.error(f"Unhandled exception: {error}")
+        app.logger.error(traceback.format_exc())
+        
         error_code = getattr(error, 'code', 500)
         error_message = str(error)
+        
+        # Rollback database on any error
+        try:
+            db.session.rollback()
+        except:
+            pass
+        
         return render_template('errors/generic.jinja', 
                              error_code=error_code,
                              error_message=error_message), error_code
