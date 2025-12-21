@@ -2,19 +2,10 @@
 from datetime import datetime
 
 
-class SiteSettings:
-    """Model for storing site-wide customization settings.
-    
-    Note: This class will be properly initialized with db.Model when imported
-    into models/__init__.py
-    """
-    pass
-
-
 def init_site_settings(db):
     """Initialize the SiteSettings model with database instance."""
     
-    class _SiteSettings(db.Model):
+    class SiteSettings(db.Model):
         """Model for storing site-wide customization settings."""
         __tablename__ = 'site_settings'
         
@@ -66,10 +57,10 @@ def init_site_settings(db):
         def get_settings():
             """Get or create site settings."""
             try:
-                settings = _SiteSettings.query.first()
+                settings = SiteSettings.query.first()
                 if not settings:
                     # Create default settings
-                    settings = _SiteSettings(
+                    settings = SiteSettings(
                         site_name='My Blog',
                         site_tagline='Welcome to our community',
                         site_description='A place for sharing ideas',
@@ -93,7 +84,7 @@ def init_site_settings(db):
             except Exception as e:
                 # If database error, return default settings object (not saved to DB)
                 db.session.rollback()
-                return _SiteSettings(
+                return SiteSettings(
                     site_name='My Blog',
                     site_tagline='Welcome to our community',
                     site_description='A place for sharing ideas',
@@ -112,4 +103,4 @@ def init_site_settings(db):
                     enable_social_sharing=True
                 )
     
-    return _SiteSettings
+    return SiteSettings
