@@ -7,6 +7,9 @@ import re
 
 db = SQLAlchemy()
 
+# Import SiteSettings model
+from app.models.site_settings import SiteSettings
+
 
 class Article(db.Model):
     """Article model for blog posts."""
@@ -92,6 +95,9 @@ class User(db.Model):
     must_change_password = db.Column(db.Integer, nullable=False, default=1)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     
+    # Permissions
+    can_write_articles = db.Column(db.Integer, nullable=False, default=0)
+    
     # Profile fields
     display_name = db.Column(db.String(100))
     email = db.Column(db.String(120))
@@ -99,8 +105,24 @@ class User(db.Model):
     profile_picture = db.Column(db.String(200))  # Filename or URL
     location = db.Column(db.String(100))
     website = db.Column(db.String(200))
+    
+    # Social media links
     twitter = db.Column(db.String(100))
     github = db.Column(db.String(100))
+    youtube = db.Column(db.String(100))
+    twitch = db.Column(db.String(100))
+    linkedin = db.Column(db.String(100))
+    instagram = db.Column(db.String(100))
+    discord = db.Column(db.String(100))
+    tiktok = db.Column(db.String(100))
+    
+    # Page customization (for article writers)
+    custom_bg_color = db.Column(db.String(20), default='#0a0e27')
+    custom_text_color = db.Column(db.String(20), default='#e2e8f0')
+    custom_accent_color = db.Column(db.String(20), default='#06b6d4')
+    custom_font_size = db.Column(db.String(10), default='16px')
+    custom_font_family = db.Column(db.String(100), default='system-ui')
+    custom_bg_image = db.Column(db.String(255), nullable=True)  # Path to background image
     
     def set_password(self, password):
         """Hash and set the user's password."""
@@ -123,6 +145,18 @@ class User(db.Model):
             'website': self.website,
             'twitter': self.twitter,
             'github': self.github,
+            'youtube': self.youtube,
+            'twitch': self.twitch,
+            'linkedin': self.linkedin,
+            'instagram': self.instagram,
+            'discord': self.discord,
+            'tiktok': self.tiktok,
+            'custom_bg_color': self.custom_bg_color,
+            'custom_text_color': self.custom_text_color,
+            'custom_accent_color': self.custom_accent_color,
+            'custom_font_size': self.custom_font_size,
+            'custom_font_family': self.custom_font_family,
+            'custom_bg_image': self.custom_bg_image,
             'created_at': self.created_at.strftime('%Y-%m-%d') if self.created_at else None,
         }
     

@@ -24,6 +24,8 @@ def login():
             session['logged_in'] = True
             session['user_id'] = user.id
             session['username'] = user.username
+            session['is_admin'] = bool(user.is_admin)
+            session['can_write_articles'] = bool(user.can_write_articles)
             
             # Check if password change is required
             if user.must_change_password:
@@ -76,6 +78,8 @@ def register():
             session['logged_in'] = True
             session['user_id'] = new_user.id
             session['username'] = new_user.username
+            session['is_admin'] = False
+            session['can_write_articles'] = False
             
             flash('Account created successfully! Welcome!', 'success')
             

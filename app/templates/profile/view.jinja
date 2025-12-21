@@ -3,7 +3,49 @@
 {% block title %}{{ user.display_name or user.username }}'s Profile{% endblock %}
 
 {% block main %}
-<div class="card">
+<!-- Apply custom styles if user has customizations -->
+{% if user_obj and (user_obj.can_write_articles or user_obj.is_admin) %}
+<style>
+    :root {
+        --custom-bg: {{ user_obj.custom_bg_color or '#0a0e27' }};
+        --custom-text: {{ user_obj.custom_text_color or '#e2e8f0' }};
+        --custom-accent: {{ user_obj.custom_accent_color or '#06b6d4' }};
+    }
+    .profile-customized {
+        {% if user_obj.custom_bg_image %}
+        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                    url('{{ url_for('static', filename=user_obj.custom_bg_image) }}') center/cover !important;
+        {% else %}
+        background: var(--custom-bg) !important;
+        {% endif %}
+        color: var(--custom-text) !important;
+        font-size: {{ user_obj.custom_font_size or '16px' }} !important;
+        font-family: {{ user_obj.custom_font_family or 'system-ui' }} !important;
+        border-color: var(--custom-accent) !important;
+        position: relative;
+        backdrop-filter: blur(10px);
+    }
+    .profile-customized::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: inherit;
+        filter: blur(0px);
+        z-index: -1;
+    }
+    .profile-customized a {
+        color: var(--custom-accent) !important;
+    }
+    .profile-customized .button {
+        border-color: var(--custom-accent) !important;
+    }
+</style>
+{% endif %}
+
+<div class="card {% if user_obj and (user_obj.can_write_articles or user_obj.is_admin) %}profile-customized{% endif %}">
     <div style="display: flex; align-items: start; gap: 2rem; margin-bottom: 2rem;">
         <div style="flex-shrink: 0;">
             {% if user.profile_picture %}
@@ -43,17 +85,53 @@
                 {% endif %}
             </div>
             
-            <div style="display: flex; gap: 0.5rem;">
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
                 {% if user.twitter %}
                     <a href="https://twitter.com/{{ user.twitter.lstrip('@') }}" target="_blank" style="padding: 0.5rem 1rem; background: rgba(29, 161, 242, 0.1); color: #1DA1F2; border-radius: 5px; text-decoration: none; border: 1px solid #1DA1F2;">
-                        Twitter
+                        <i class="bi bi-twitter"></i> Twitter
                     </a>
                 {% endif %}
                 
                 {% if user.github %}
                     <a href="https://github.com/{{ user.github }}" target="_blank" style="padding: 0.5rem 1rem; background: rgba(255, 255, 255, 0.1); color: var(--text); border-radius: 5px; text-decoration: none; border: 1px solid var(--card-border);">
-                        GitHub
+                        <i class="bi bi-github"></i> GitHub
                     </a>
+                {% endif %}
+                
+                {% if user.youtube %}
+                    <a href="https://youtube.com/{{ user.youtube }}" target="_blank" style="padding: 0.5rem 1rem; background: rgba(255, 0, 0, 0.1); color: #FF0000; border-radius: 5px; text-decoration: none; border: 1px solid #FF0000;">
+                        <i class="bi bi-youtube"></i> YouTube
+                    </a>
+                {% endif %}
+                
+                {% if user.twitch %}
+                    <a href="https://twitch.tv/{{ user.twitch }}" target="_blank" style="padding: 0.5rem 1rem; background: rgba(145, 70, 255, 0.1); color: #9146FF; border-radius: 5px; text-decoration: none; border: 1px solid #9146FF;">
+                        <i class="bi bi-twitch"></i> Twitch
+                    </a>
+                {% endif %}
+                
+                {% if user.linkedin %}
+                    <a href="https://linkedin.com/in/{{ user.linkedin }}" target="_blank" style="padding: 0.5rem 1rem; background: rgba(0, 119, 181, 0.1); color: #0077B5; border-radius: 5px; text-decoration: none; border: 1px solid #0077B5;">
+                        <i class="bi bi-linkedin"></i> LinkedIn
+                    </a>
+                {% endif %}
+                
+                {% if user.instagram %}
+                    <a href="https://instagram.com/{{ user.instagram.lstrip('@') }}" target="_blank" style="padding: 0.5rem 1rem; background: rgba(225, 48, 108, 0.1); color: #E1306C; border-radius: 5px; text-decoration: none; border: 1px solid #E1306C;">
+                        <i class="bi bi-instagram"></i> Instagram
+                    </a>
+                {% endif %}
+                
+                {% if user.tiktok %}
+                    <a href="https://tiktok.com/{{ user.tiktok }}" target="_blank" style="padding: 0.5rem 1rem; background: rgba(0, 0, 0, 0.1); color: var(--text); border-radius: 5px; text-decoration: none; border: 1px solid var(--card-border);">
+                        <i class="bi bi-tiktok"></i> TikTok
+                    </a>
+                {% endif %}
+                
+                {% if user.discord %}
+                    <span style="padding: 0.5rem 1rem; background: rgba(88, 101, 242, 0.1); color: #5865F2; border-radius: 5px; border: 1px solid #5865F2;">
+                        <i class="bi bi-discord"></i> {{ user.discord }}
+                    </span>
                 {% endif %}
             </div>
         </div>
@@ -61,8 +139,15 @@
     
     {% if is_own_profile %}
         <div style="display: flex; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--card-border);">
-            <a href="{{ url_for('profile.edit_profile') }}" class="button">Edit Profile</a>
-            <a href="{{ url_for('auth.change_password') }}" class="button" style="background: rgba(var(--purple-rgb), 0.2); color: var(--purple);">Change Password</a>
+            <a href="{{ url_for('profile.edit_profile') }}" class="button">✏️ Edit Profile</a>
+            {% if can_customize %}
+                <a href="{{ url_for('profile.customize_page') }}" class="button" style="background: rgba(6, 182, 212, 0.2); border-color: var(--cyan); color: var(--cyan);">
+                    🎨 Customize Page
+                </a>
+            {% endif %}
+            <a href="{{ url_for('auth.change_password') }}" class="button" style="background: rgba(var(--purple-rgb), 0.2); color: var(--purple);">
+                🔒 Change Password
+            </a>
         </div>
     {% endif %}
     

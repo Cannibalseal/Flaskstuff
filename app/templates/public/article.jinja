@@ -39,9 +39,11 @@
   </div>
 
   <!-- Engagement Section -->
+  {% set site_settings = get_site_settings() %}
   <div style="border-top: 2px solid var(--card-border); border-bottom: 2px solid var(--card-border); padding: 1rem 0; margin-bottom: 2rem;">
     <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
       <!-- Like Button -->
+      {% if site_settings.enable_likes %}
       <button id="likeBtn" 
               class="button" 
               onclick="toggleLike()"
@@ -50,8 +52,10 @@
         <span id="likeCount">{{ article.likes_count }}</span> 
         <span>{{ 'Liked' if article.user_has_liked else 'Like' }}</span>
       </button>
+      {% endif %}
 
       <!-- Share Buttons -->
+      {% if site_settings.enable_social_sharing %}
       <span class="muted" style="margin: 0 0.5rem;">Share:</span>
       <a href="https://twitter.com/intent/tweet?text={{ article.title | urlencode }}&url={{ request.url | urlencode }}" 
          target="_blank" 
@@ -76,10 +80,12 @@
               style="background: rgba(160,174,192,0.1); color: var(--muted); padding: 0.5rem 1rem;">
         <i class="bi bi-link-45deg"></i> Copy Link
       </button>
+      {% endif %}
     </div>
   </div>
 
   <!-- Comments Section -->
+  {% if site_settings.enable_comments %}
   <div style="margin-bottom: 2rem;">
     <h3 style="margin-bottom: 1rem;">
       <i class="bi bi-chat-dots"></i> Comments ({{ article.comments|length }})
@@ -91,12 +97,17 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <textarea name="content" 
                   rows="4" 
-                  placeholder="Write your comment here..." 
+                  placeholder="Write your comment here... 😊 (emojis supported!)" 
                   required
                   style="width: 100%; padding: 0.75rem; border: 1px solid var(--card-border); border-radius: 8px; background: var(--background); color: var(--text); font-family: inherit; resize: vertical;"></textarea>
-        <button type="submit" class="button" style="margin-top: 0.5rem;">
-          <i class="bi bi-send"></i> Post Comment
-        </button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+          <small class="muted" style="font-size: 0.85rem;">
+            <i class="bi bi-emoji-smile"></i> Tip: Use emojis to express yourself! (Windows: Win+. | Mac: Cmd+Ctrl+Space)
+          </small>
+          <button type="submit" class="button">
+            <i class="bi bi-send"></i> Post Comment
+          </button>
+        </div>
       </form>
     {% else %}
       <div style="background: rgba(6,182,212,0.1); border: 1px solid var(--cyan); border-radius: 8px; padding: 1rem; margin-bottom: 2rem; text-align: center;">
@@ -128,7 +139,7 @@
                 <div class="muted" style="font-size: 0.85rem;">{{ comment.created_at }}</div>
               </div>
             </div>
-            <p style="margin: 0;">{{ comment.content }}</p>
+            <p style="margin: 0; word-wrap: break-word; white-space: pre-wrap;">{{ comment.content }}</p>
           </div>
         {% endfor %}
       </div>
@@ -136,6 +147,7 @@
       <p class="muted">No comments yet. Be the first to comment!</p>
     {% endif %}
   </div>
+  {% endif %}
 
   <!-- Back Button -->
   <p><a class="button" href="{{ url_for('public.articles') }}">← Back to Articles</a></p>

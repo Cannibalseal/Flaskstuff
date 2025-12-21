@@ -1,0 +1,167 @@
+{% include 'components/_head.jinja' %}
+{% include 'components/_nav.jinja' %}
+
+<style>
+  /* Dropdown option styling for better visibility */
+  select option {
+    background-color: #1a1f3a !important;
+    color: #e2e8f0 !important;
+    padding: 0.5rem !important;
+  }
+  
+  select option:hover {
+    background-color: #06b6d4 !important;
+  }
+  
+  select {
+    background-color: var(--card) !important;
+    color: var(--text) !important;
+  }
+</style>
+
+<div class="container">
+  <h1>🎨 Customize Your Page</h1>
+  <p class="muted">Personalize your profile page with custom colors and fonts</p>
+
+  <!-- Preview Section -->
+  <div style="background: {{ form.custom_bg_color.data or '#0a0e27' }}; color: {{ form.custom_text_color.data or '#e2e8f0' }}; border: 2px solid {{ form.custom_accent_color.data or '#06b6d4' }}; border-radius: 12px; padding: 2rem; margin: 2rem 0; font-family: {{ form.custom_font_family.data or 'system-ui' }}; font-size: {{ form.custom_font_size.data or '16px' }};">
+    <h3 style="color: {{ form.custom_accent_color.data or '#06b6d4' }}; margin-top: 0;">Live Preview</h3>
+    <p style="margin-bottom: 0;">This is how your customized page will look. Try changing the colors and fonts below!</p>
+  </div>
+
+  <!-- Customization Form -->
+  <form method="POST" enctype="multipart/form-data" class="card" style="max-width: 600px; margin: 0 auto;">
+    {{ form.csrf_token }}
+    
+    <h3 style="margin-top: 0;">🖼️ Background Image</h3>
+    <div style="margin-bottom: 2rem;">
+      <label for="bg_image" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+        Upload Background Image
+      </label>
+      {% if user.custom_bg_image %}
+        <div style="margin-bottom: 1rem;">
+          <img src="{{ url_for('static', filename=user.custom_bg_image) }}" alt="Current background" style="width: 100%; max-height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid var(--card-border);">
+          <small class="muted" style="display: block; margin-top: 0.5rem;">Current background image</small>
+        </div>
+      {% endif %}
+      <input type="file" name="bg_image" id="bg_image" accept="image/*" style="display: block; padding: 0.75rem; background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 8px; color: var(--text); width: 100%; cursor: pointer;">
+      <small class="muted" style="display: block; margin-top: 0.5rem;">
+        📸 Upload an image and colors will be automatically extracted! JPG, PNG, or GIF. Max 5MB.
+      </small>
+      <small style="display: block; margin-top: 0.5rem; color: var(--cyan);">
+        ✨ Colors below will auto-adjust based on your image
+      </small>
+    </div>
+    
+    <h3 style="margin-top: 0;">🎨 Color Settings</h3>
+    <small class="muted" style="display: block; margin-bottom: 1rem;">
+      Colors are auto-extracted from your image, but you can manually adjust them below
+    </small>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+      <div>
+        <label for="custom_bg_color" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+          🎨 Background Color
+        </label>
+        {{ form.custom_bg_color(style="width: 100%; height: 50px; cursor: pointer; border: 2px solid var(--card-border); border-radius: 8px;") }}
+      </div>
+      
+      <div>
+        <label for="custom_text_color" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+          ✏️ Text Color
+        </label>
+        {{ form.custom_text_color(style="width: 100%; height: 50px; cursor: pointer; border: 2px solid var(--card-border); border-radius: 8px;") }}
+      </div>
+      
+      <div style="grid-column: span 2;">
+        <label for="custom_accent_color" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+          ⭐ Accent Color (links, borders, highlights)
+        </label>
+        {{ form.custom_accent_color(style="width: 100%; height: 50px; cursor: pointer; border: 2px solid var(--card-border); border-radius: 8px;") }}
+      </div>
+    </div>
+
+    <h3>Typography Settings</h3>
+    
+    <div style="margin-bottom: 1.5rem;">
+      <label for="custom_font_size" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+        📏 Font Size
+      </label>
+      {{ form.custom_font_size(class="form-select", style="width: 100%; padding: 0.75rem; border: 1px solid var(--card-border); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer;") }}
+      <small class="muted" style="display: block; margin-top: 0.25rem;">
+        Select from preset font sizes for optimal readability
+      </small>
+    </div>
+    
+    <div style="margin-bottom: 1.5rem;">
+      <label for="custom_font_family" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+        🔤 Font Family
+      </label>
+      {{ form.custom_font_family(class="form-select", style="width: 100%; padding: 0.75rem; border: 1px solid var(--card-border); border-radius: 8px; background: var(--card); color: var(--text); cursor: pointer;") }}
+      <small class="muted" style="display: block; margin-top: 0.25rem;">
+        Choose from web-safe fonts for best compatibility
+      </small>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+      {{ form.submit(class="button") }}
+      <a href="{{ url_for('profile.view_profile') }}" class="button" style="background: var(--card); color: var(--text);">
+        Cancel
+      </a>
+      <button type="button" onclick="resetDefaults()" class="button" style="background: var(--card); color: var(--text); margin-left: auto;">
+        Reset to Defaults
+      </button>
+    </div>
+  </form>
+
+  <!-- Help Section -->
+  <div class="card" style="max-width: 600px; margin: 2rem auto; background: rgba(6,182,212,0.1); border: 1px solid var(--cyan);">
+    <h4 style="margin-top: 0;">💡 Customization Tips</h4>
+    <ul style="margin: 0; padding-left: 1.5rem;">
+      <li><strong>Upload a background image</strong> and colors will be automatically extracted!</li>
+      <li>The system analyzes your image to create a cohesive color palette</li>
+      <li>You can still manually adjust colors after uploading an image</li>
+      <li>Choose colors that have good contrast for readability</li>
+      <li>Preview changes in real-time above before saving</li>
+      <li>Your customizations will appear on your profile page</li>
+      <li>Use the dropdown menus for easy font selection</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  // Live preview updates
+  const bgInput = document.getElementById('custom_bg_color');
+  const textInput = document.getElementById('custom_text_color');
+  const accentInput = document.getElementById('custom_accent_color');
+  const fontSizeInput = document.getElementById('custom_font_size');
+  const fontFamilyInput = document.getElementById('custom_font_family');
+  const preview = document.querySelector('[style*="Live Preview"]').parentElement;
+
+  function updatePreview() {
+    preview.style.background = bgInput.value;
+    preview.style.color = textInput.value;
+    preview.style.borderColor = accentInput.value;
+    preview.style.fontSize = fontSizeInput.value || '16px';
+    preview.style.fontFamily = fontFamilyInput.value || 'system-ui';
+    preview.querySelector('h3').style.color = accentInput.value;
+  }
+
+  bgInput.addEventListener('input', updatePreview);
+  textInput.addEventListener('input', updatePreview);
+  accentInput.addEventListener('input', updatePreview);
+  fontSizeInput.addEventListener('input', updatePreview);
+  fontFamilyInput.addEventListener('input', updatePreview);
+
+  function resetDefaults() {
+    bgInput.value = '#0a0e27';
+    textInput.value = '#e2e8f0';
+    accentInput.value = '#06b6d4';
+    fontSizeInput.value = '16px';
+    fontFamilyInput.value = 'system-ui';
+    updatePreview();
+  }
+</script>
+
+{% include 'components/_footer.jinja' %}

@@ -1,5 +1,8 @@
 <footer class="site-footer">
+  {% set site_settings = get_site_settings() %}
+  
   <!-- Newsletter Signup -->
+  {% if site_settings.enable_newsletter %}
   <div style="max-width: 500px; margin: 0 auto 2rem;">
     <h3 style="color: var(--cyan); font-size: 1.2rem; margin-bottom: 0.75rem;">📬 Subscribe to Newsletter</h3>
     <p class="muted" style="font-size: 0.9rem; margin-bottom: 1rem;">Get notified when we publish new articles</p>
@@ -16,7 +19,11 @@
       <button type="submit" class="button" style="margin: 0;">Subscribe</button>
     </form>
   </div>
+  {% endif %}
   
-  <div class="muted">© 2025 Sealy — All rights reserved.</div>
+  <!-- Custom Footer Content -->
+  <div class="custom-footer-content" style="margin-bottom: 1rem;">
+    {{ site_settings.footer_content | safe }}
+  </div>
 </footer>
 

@@ -24,15 +24,34 @@ A feature-rich blog application built with Flask, featuring user authentication,
   - Comment and like counters
 
 - **Admin Dashboard**
+  - Comprehensive site customization system with built-in code editors
   - Manage all articles
   - User management (view, delete, toggle admin privileges)
   - View user activity (articles, comments, likes)
   - Newsletter subscriber management
+  - Customize site identity, content, styling, SEO, and features
+  - Upload logo and favicon
+  - Feature toggles (comments, likes, newsletter, social sharing)
 
 - **Newsletter**
   - Email subscription system
   - Professional email templates
   - Celery async task processing
+
+- **Site Customization**
+  - Admin-only customization panel with CodeMirror editors
+  - Custom HTML/CSS/JavaScript injection
+  - Logo and favicon upload
+  - SEO meta tags configuration
+  - Color scheme customization
+  - Feature toggles for comments, likes, newsletter, and social sharing
+  - Live content editing for welcome and about pages
+
+- **Profile Customization**
+  - Custom background images with automatic color extraction
+  - Custom colors (background, text, accent)
+  - Custom font settings (size, family)
+  - Social media links (Twitter, GitHub, LinkedIn, Website)
 
 ## 📁 Project Structure
 
@@ -47,15 +66,20 @@ Flaskstuff/
 │   ├── forms/                   # WTForms definitions
 │   │   └── __init__.py         # All form classes
 │   ├── models/                  # Database models
-│   │   └── __init__.py         # Article, User, Comment, Like, Newsletter
+│   │   ├── __init__.py         # Article, User, Comment, Like, Newsletter
+│   │   └── site_settings.py    # Site customization settings
 │   ├── routes/                  # Blueprint routes
 │   │   ├── admin.py            # Admin dashboard routes
 │   │   ├── auth.py             # Authentication routes
 │   │   ├── profile.py          # User profile routes
 │   │   └── public.py           # Public routes
 │   ├── static/                  # Static files
-│   │   └── css/
-│   │       └── main.css        # Custom styles
+│   │   ├── css/
+│   │   │   └── main.css        # Custom styles
+│   │   └── uploads/            # User-uploaded files (gitignored)
+│   │       ├── backgrounds/    # Profile backgrounds
+│   │       ├── profiles/       # Profile pictures
+│   │       └── site/           # Logo, favicon
 │   └── templates/               # Jinja2 templates
 │       ├── admin/              # Admin templates
 │       ├── auth/               # Auth templates
@@ -150,19 +174,28 @@ Flaskstuff/
 Key environment variables in `.env`:
 
 ```env
-# Flask
-SECRET_KEY=your-secret-key-here
-FLASK_ENV=development
+# Flask Configuration
+FLASK_SECRET=your-secret-key-here
+FLASK_DEBUG=1
 
-# Database
-DATABASE_URL=sqlite:///app.db
+# Admin Credentials (Change these!)
+ADMIN_USER=admin
+ADMIN_PASS=change-this-password
 
-# Email (Gmail)
+# Gmail SMTP Configuration
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USE_TLS=1
 MAIL_USERNAME=your-email@gmail.com
-MAIL_PASSWORD=your-app-password
+MAIL_PASSWORD=your-app-password-here
+MAIL_DEFAULT_SENDER=your-email@gmail.com
 
-# Redis (optional)
-REDIS_URL=redis://localhost:6379/0
+# Celery/Redis Configuration
+CELERY_BROKER_URL=redis://localhost:6379/0
+CELERY_RESULT_BACKEND=redis://localhost:6379/0
+
+# Database Configuration (Optional - defaults to SQLite)
+# DATABASE_URL=sqlite:///app.db
 ```
 
 ## 🔧 Development
@@ -192,6 +225,7 @@ alembic downgrade -1
 
 Detailed documentation is available in the `/docs` folder:
 - [Project Structure](docs/PROJECT_STRUCTURE.md)
+- [Site Customization Guide](docs/SITE_CUSTOMIZATION.md) - **NEW!** Comprehensive admin customization system
 - [Newsletter Setup](docs/NEWSLETTER_SETUP.md)
 - [Celery & Redis Setup](docs/CELERY_REDIS_SETUP.md)
 - [Security Guidelines](docs/SECURITY.md)
@@ -237,8 +271,11 @@ This project is open source and available under the MIT License.
 
 Built with:
 - Flask 3.1.2
-- SQLAlchemy
+- SQLAlchemy 2.0.45
 - Bootstrap 5.3.2
-- jQuery 3.7.1
-- Alembic
-- Flask-WTF
+- Bootstrap Icons 1.11.3
+- CodeMirror 5.65.16 (Dracula theme)
+- Pillow 11.1.0 (image processing)
+- Celery 5.4.0 & Redis 5.2.1
+- Alembic 1.14.0
+- Flask-WTF & WTForms

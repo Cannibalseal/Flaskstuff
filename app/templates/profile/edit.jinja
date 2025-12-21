@@ -57,17 +57,55 @@
             {{ form.website(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem;") }}
         </div>
         
+        <!-- Social Media Links -->
+        <h3 style="margin-bottom: 1rem; color: var(--text);">🌐 Social Media</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
             <!-- Twitter -->
             <div>
-                {{ form.twitter.label(style="display: block; margin-bottom: 0.5rem; font-weight: 500;") }}
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;"><i class="bi bi-twitter"></i> {{ form.twitter.label.text }}</label>
                 {{ form.twitter(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem;") }}
             </div>
             
             <!-- GitHub -->
             <div>
-                {{ form.github.label(style="display: block; margin-bottom: 0.5rem; font-weight: 500;") }}
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;"><i class="bi bi-github"></i> {{ form.github.label.text }}</label>
                 {{ form.github(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem;") }}
+            </div>
+            
+            <!-- YouTube -->
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;"><i class="bi bi-youtube"></i> {{ form.youtube.label.text }}</label>
+                {{ form.youtube(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem;") }}
+            </div>
+            
+            <!-- Twitch -->
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;"><i class="bi bi-twitch"></i> {{ form.twitch.label.text }}</label>
+                {{ form.twitch(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem;") }}
+            </div>
+            
+            <!-- LinkedIn -->
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;"><i class="bi bi-linkedin"></i> {{ form.linkedin.label.text }}</label>
+                {{ form.linkedin(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem;") }}
+            </div>
+            
+            <!-- Instagram -->
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;"><i class="bi bi-instagram"></i> {{ form.instagram.label.text }}</label>
+                {{ form.instagram(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem;") }}
+            </div>
+            
+            <!-- TikTok -->
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;"><i class="bi bi-tiktok"></i> {{ form.tiktok.label.text }}</label>
+                {{ form.tiktok(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem;") }}
+            </div>
+            
+            <!-- Discord -->
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;"><i class="bi bi-discord"></i> {{ form.discord.label.text }}</label>
+                {{ form.discord(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem;") }}
             </div>
         </div>
         

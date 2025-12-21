@@ -33,7 +33,7 @@
                             <th>Username</th>
                             <th>Display Name</th>
                             <th>Email</th>
-                            <th>Admin</th>
+                            <th>Permissions</th>
                             <th>Activity</th>
                             <th>Joined</th>
                             <th>Actions</th>
@@ -65,6 +65,9 @@
                                 {% else %}
                                     <span class="badge bg-secondary">User</span>
                                 {% endif %}
+                                {% if user.can_write_articles %}
+                                    <span class="badge bg-success">Writer</span>
+                                {% endif %}
                             </td>
                             <td>
                                 <small class="text-muted">
@@ -89,7 +92,16 @@
                                                     title="{{ 'Revoke Admin' if user.is_admin else 'Grant Admin' }}"
                                                     onclick="return confirm('Are you sure you want to {{ 'revoke' if user.is_admin else 'grant' }} admin privileges?')">
                                                 <i class="bi bi-shield-{{ 'slash' if user.is_admin else 'check' }}"></i>
+                                            </button>toggle_writer', user_id=user.id) }}" class="d-inline">
+                                            <button type="submit" 
+                                                    class="btn btn-sm btn-outline-success" 
+                                                    title="{{ 'Revoke Writer' if user.can_write_articles else 'Grant Writer' }}"
+                                                    onclick="return confirm('Are you sure you want to {{ 'revoke' if user.can_write_articles else 'grant' }} article writing permission?')">
+                                                <i class="bi bi-pencil-{{ 'slash' if user.can_write_articles else 'square' }}"></i>
                                             </button>
+                                        </form>
+                                        
+                                        <form method="POST" action="{{ url_for('admin.
                                         </form>
                                         
                                         <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}" class="d-inline">

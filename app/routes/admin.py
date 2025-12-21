@@ -1,8 +1,12 @@
 """Admin routes for managing articles and dashboard."""
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, abort
+from werkzeug.utils import secure_filename
 from app.models import db, Article, User, Newsletter
+from app.models.site_settings import SiteSettings
 from app.forms import ArticleForm
+import os
+from pathlib import Path
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -28,6 +32,27 @@ def require_login():
     return None
 
 
+def require_writer_or_admin():
+    """Check if user is logged in and can write articles (writer or admin)."""
+    if not session.get('logged_in'):
+        return redirect(url_for('auth.login', next=request.url))
+    
+    user_id = session.get('user_id')
+    if user_id:
+        user = db.session.get(User, user_id)
+        if user:
+            # Check if password change is required
+            if user.must_change_password:
+                flash('Please change your password before continuing.', 'info')
+                return redirect(url_for('auth.change_password'))
+            
+            # Check if user can write articles or is admin
+            if not user.can_write_articles and not user.is_admin:
+                flash('You do not have permission to create articles.', 'error')
+                abort(403)
+    return None
+
+
 @admin_bp.route('/')
 def dashboard():
     """Admin dashboard - show all articles."""
@@ -42,8 +67,8 @@ def dashboard():
 
 @admin_bp.route('/article/new', methods=['GET', 'POST'])
 def new_article():
-    """Create a new article."""
-    redirect_response = require_login()
+    """Create a new article (for writers and admins)."""
+    redirect_response = require_writer_or_admin()
     if redirect_response:
         return redirect_response
     
@@ -89,8 +114,8 @@ def new_article():
 
 @admin_bp.route('/article/edit/<slug>', methods=['GET', 'POST'])
 def edit_article(slug):
-    """Edit an existing article."""
-    redirect_response = require_login()
+    """Edit an existing article (admins can edit all, writers can edit their own)."""
+    redirect_response = require_writer_or_admin()
     if redirect_response:
         return redirect_response
     
@@ -98,6 +123,15 @@ def edit_article(slug):
     if not article:
         flash('Article not found.', 'error')
         return redirect(url_for('admin.dashboard'))
+    
+    # Check if user can edit this article
+    user_id = session.get('user_id')
+    user = db.session.get(User, user_id)
+    
+    # Writers can only edit their own articles, admins can edit all
+    if not user.is_admin and article.author_id != user_id:
+        flash('You can only edit your own articles.', 'error')
+        abort(403)
     
     form = ArticleForm()
     
@@ -127,8 +161,8 @@ def edit_article(slug):
 
 @admin_bp.route('/article/delete/<slug>', methods=['POST'])
 def delete_article(slug):
-    """Delete an article."""
-    redirect_response = require_login()
+    """Delete an article (admins can delete all, writers can delete their own)."""
+    redirect_response = require_writer_or_admin()
     if redirect_response:
         return redirect_response
     
@@ -136,6 +170,15 @@ def delete_article(slug):
     if not article:
         flash('Article not found.', 'error')
         return redirect(url_for('admin.dashboard'))
+    
+    # Check if user can delete this article
+    user_id = session.get('user_id')
+    user = db.session.get(User, user_id)
+    
+    # Writers can only delete their own articles, admins can delete all
+    if not user.is_admin and article.author_id != user_id:
+        flash('You can only delete your own articles.', 'error')
+        abort(403)
     
     title = article.title
     db.session.delete(article)
@@ -226,6 +269,26 @@ def toggle_admin(user_id):
     return redirect(url_for('admin.users'))
 
 
+@admin_bp.route('/users/<int:user_id>/toggle-writer', methods=['POST'])
+def toggle_writer(user_id):
+    """Toggle article writing permissions for a user."""
+    redirect_response = require_login()
+    if redirect_response:
+        return redirect_response
+    
+    user = db.session.get(User, user_id)
+    if not user:
+        flash('User not found.', 'error')
+        return redirect(url_for('admin.users'))
+    
+    user.can_write_articles = 1 if user.can_write_articles == 0 else 0
+    db.session.commit()
+    
+    status = 'granted' if user.can_write_articles else 'revoked'
+    flash(f'Article writing permission {status} for user "{user.username}".', 'success')
+    return redirect(url_for('admin.users'))
+
+
 @admin_bp.route('/users/<int:user_id>/delete', methods=['POST'])
 def delete_user(user_id):
     """Delete a user."""
@@ -287,3 +350,98 @@ def user_activity(user_id):
     }
     
     return render_template('admin/user_activity.jinja', **activity_data)
+
+
+@admin_bp.route('/customize-site', methods=['GET', 'POST'])
+def customize_site():
+    """Admin-only site customization page with built-in editor."""
+    redirect_response = require_login()
+    if redirect_response:
+        return redirect_response
+    
+    settings = SiteSettings.get_settings()
+    
+    if request.method == 'POST':
+        # Site Identity
+        settings.site_name = request.form.get('site_name', 'My Blog')
+        settings.site_tagline = request.form.get('site_tagline', '')
+        settings.site_description = request.form.get('site_description', '')
+        
+        # Page Content
+        settings.welcome_page_content = request.form.get('welcome_page_content', '')
+        settings.about_page_content = request.form.get('about_page_content', '')
+        settings.footer_content = request.form.get('footer_content', '')
+        
+        # Custom Styling
+        settings.custom_css = request.form.get('custom_css', '')
+        settings.custom_js = request.form.get('custom_js', '')
+        
+        # SEO
+        settings.meta_keywords = request.form.get('meta_keywords', '')
+        settings.meta_description = request.form.get('meta_description', '')
+        
+        # Social Media
+        settings.site_twitter = request.form.get('site_twitter', '')
+        settings.site_github = request.form.get('site_github', '')
+        settings.site_email = request.form.get('site_email', '')
+        
+        # Appearance
+        settings.primary_color = request.form.get('primary_color', '#06b6d4')
+        settings.secondary_color = request.form.get('secondary_color', '#8b5cf6')
+        
+        # Features Toggle
+        settings.enable_comments = 'enable_comments' in request.form
+        settings.enable_likes = 'enable_likes' in request.form
+        settings.enable_newsletter = 'enable_newsletter' in request.form
+        settings.enable_social_sharing = 'enable_social_sharing' in request.form
+        
+        # Handle logo upload
+        if 'logo' in request.files:
+            logo = request.files['logo']
+            if logo and logo.filename:
+                filename = secure_filename(logo.filename)
+                timestamp = os.urandom(8).hex()
+                file_ext = os.path.splitext(filename)[1]
+                unique_filename = f'logo_{timestamp}{file_ext}'
+                
+                upload_folder = Path('app/static/uploads/site')
+                upload_folder.mkdir(parents=True, exist_ok=True)
+                filepath = upload_folder / unique_filename
+                logo.save(filepath)
+                
+                # Delete old logo
+                if settings.logo_path:
+                    old_path = Path('app/static') / settings.logo_path.lstrip('/')
+                    if old_path.exists():
+                        old_path.unlink()
+                
+                settings.logo_path = f'uploads/site/{unique_filename}'
+        
+        # Handle favicon upload
+        if 'favicon' in request.files:
+            favicon = request.files['favicon']
+            if favicon and favicon.filename:
+                filename = secure_filename(favicon.filename)
+                timestamp = os.urandom(8).hex()
+                file_ext = os.path.splitext(filename)[1]
+                unique_filename = f'favicon_{timestamp}{file_ext}'
+                
+                upload_folder = Path('app/static/uploads/site')
+                upload_folder.mkdir(parents=True, exist_ok=True)
+                filepath = upload_folder / unique_filename
+                favicon.save(filepath)
+                
+                # Delete old favicon
+                if settings.favicon_path:
+                    old_path = Path('app/static') / settings.favicon_path.lstrip('/')
+                    if old_path.exists():
+                        old_path.unlink()
+                
+                settings.favicon_path = f'uploads/site/{unique_filename}'
+        
+        db.session.commit()
+        flash('Site settings saved successfully!', 'success')
+        return redirect(url_for('admin.customize_site'))
+    
+    return render_template('admin/customize_site.jinja', settings=settings)
+

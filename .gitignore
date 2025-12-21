@@ -40,7 +40,11 @@ flask_session/
 
 # Uploaded files / temporary
 uploads/
-static/uploads/
+app/static/uploads/**
+!app/static/uploads/.gitkeep
+!app/static/uploads/backgrounds/.gitkeep
+!app/static/uploads/profiles/.gitkeep
+!app/static/uploads/site/.gitkeep
 
 # PyInstaller
 *.manifest

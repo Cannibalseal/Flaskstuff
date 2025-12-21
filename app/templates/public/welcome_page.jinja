@@ -3,9 +3,9 @@
 {% block title %}Welcome{% endblock %}
 
 {% block main %}
+{% set site_settings = get_site_settings() %}
+
 <div class="card">
-	<h2>A Brief, Questionable History</h2>
-	<p>Long ago a heroic rubber duck wandered into the codebase and fixed mysterious bugs by quacking loudly at midnight. It also left tiny tutorial scrolls and an unreasonable number of comments that begin with "Note to future self."</p>
-	<p>Sometimes a polite laptop ghost will rearrange CSS to make the pages look intentionally stylish. If things feel oddly charming, blame the duck and offer it a cookie.</p>
+	{{ site_settings.welcome_page_content | safe }}
 </div>
 {% endblock %}

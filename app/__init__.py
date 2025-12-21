@@ -100,6 +100,16 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(profile_bp)
     
+    # Register context processor for site settings
+    from app.models.site_settings import SiteSettings
+    
+    @app.context_processor
+    def inject_site_settings():
+        """Make site settings available to all templates."""
+        return {
+            'get_site_settings': SiteSettings.get_settings
+        }
+    
     # Register error handlers
     from flask import render_template
     
