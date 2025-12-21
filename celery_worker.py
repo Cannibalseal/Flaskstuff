@@ -1,11 +1,8 @@
-"""Celery worker entry point."""
+"""Celery worker entry point - DEPRECATED.
 
-from app import create_app
+This file is no longer used. The application now uses threading for background
+email tasks instead of Celery/Redis. See app/core/tasks.py for the threading
+implementation.
 
-# Create Flask app
-flask_app = create_app()
-
-# Get Celery instance
-from app import celery
-
-# This allows running: celery -A celery_worker worker
+Legacy file kept for reference only.
+"""

@@ -2,7 +2,7 @@
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, abort
 from werkzeug.utils import secure_filename
-from app.models import db, Article, User, Newsletter
+from app.models import db, Article, User, Newsletter, Comment, Like
 from app.models.site_settings import SiteSettings
 from app.forms import ArticleForm
 import os
@@ -228,7 +228,6 @@ def users():
     # Get activity stats for each user
     users_with_stats = []
     for user in all_users:
-        from app.models import Comment, Like
         stats = {
             'user': user,
             'articles_count': len(user.articles),
