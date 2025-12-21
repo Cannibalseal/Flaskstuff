@@ -192,6 +192,32 @@ def add_comment(slug):
     return redirect(url_for('public.article', slug=slug))
 
 
+@public_bp.route('/articles/<slug>/comment/<int:comment_id>/delete', methods=['POST'])
+def delete_comment(slug, comment_id):
+    """Delete a comment (owner or admin only)."""
+    from flask import session
+    
+    # Check if user is logged in
+    if not session.get('logged_in'):
+        flash('You must be logged in to delete comments.', 'error')
+        return redirect(url_for('auth.login', next=request.url))
+    
+    comment = Comment.query.get_or_404(comment_id)
+    user_id = session.get('user_id')
+    is_admin = session.get('is_admin')
+    
+    # Check if user owns the comment or is admin
+    if comment.user_id != user_id and not is_admin:
+        flash('You do not have permission to delete this comment.', 'error')
+        return redirect(url_for('public.article', slug=slug))
+    
+    db.session.delete(comment)
+    db.session.commit()
+    
+    flash('Comment deleted successfully!', 'success')
+    return redirect(url_for('public.article', slug=slug))
+
+
 @public_bp.route('/articles/<slug>/like', methods=['POST'])
 def toggle_like(slug):
     """Toggle like on an article."""
