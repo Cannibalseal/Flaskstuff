@@ -1,0 +1,73 @@
+{% extends "components/_main.jinja" %}
+
+{% block title %}{{ user.display_name or user.username }}'s Profile{% endblock %}
+
+{% block main %}
+<div class="card">
+    <div style="display: flex; align-items: start; gap: 2rem; margin-bottom: 2rem;">
+        <div style="flex-shrink: 0;">
+            {% if user.profile_picture %}
+                <img src="{{ url_for('static', filename=user.profile_picture) }}" alt="Profile" style="width: 150px; height: 150px; border-radius: 10px; object-fit: cover; border: 3px solid var(--card-border);">
+            {% else %}
+                <div style="width: 150px; height: 150px; border-radius: 10px; background: linear-gradient(135deg, var(--purple), var(--cyan)); display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white; font-weight: bold;">
+                    {{ (user.display_name or user.username)[0]|upper }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div style="flex-grow: 1;">
+            <h2 style="margin-bottom: 0.5rem;">{{ user.display_name or user.username }}</h2>
+            <p style="color: var(--muted); margin-bottom: 1rem;">@{{ user.username }}</p>
+            
+            {% if user.bio %}
+                <p style="margin-bottom: 1rem;">{{ user.bio }}</p>
+            {% endif %}
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                {% if user.location %}
+                    <span style="color: var(--muted);">
+                        📍 {{ user.location }}
+                    </span>
+                {% endif %}
+                
+                {% if user.email %}
+                    <span style="color: var(--muted);">
+                        ✉️ <a href="mailto:{{ user.email }}" style="color: var(--cyan);">{{ user.email }}</a>
+                    </span>
+                {% endif %}
+                
+                {% if user.website %}
+                    <span style="color: var(--muted);">
+                        🔗 <a href="{{ user.website }}" target="_blank" style="color: var(--cyan);">Website</a>
+                    </span>
+                {% endif %}
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem;">
+                {% if user.twitter %}
+                    <a href="https://twitter.com/{{ user.twitter.lstrip('@') }}" target="_blank" style="padding: 0.5rem 1rem; background: rgba(29, 161, 242, 0.1); color: #1DA1F2; border-radius: 5px; text-decoration: none; border: 1px solid #1DA1F2;">
+                        Twitter
+                    </a>
+                {% endif %}
+                
+                {% if user.github %}
+                    <a href="https://github.com/{{ user.github }}" target="_blank" style="padding: 0.5rem 1rem; background: rgba(255, 255, 255, 0.1); color: var(--text); border-radius: 5px; text-decoration: none; border: 1px solid var(--card-border);">
+                        GitHub
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    {% if is_own_profile %}
+        <div style="display: flex; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--card-border);">
+            <a href="{{ url_for('profile.edit_profile') }}" class="button">Edit Profile</a>
+            <a href="{{ url_for('auth.change_password') }}" class="button" style="background: rgba(var(--purple-rgb), 0.2); color: var(--purple);">Change Password</a>
+        </div>
+    {% endif %}
+    
+    <p style="margin-top: 2rem;">
+        <a class="button" href="{{ url_for('public.index') }}" style="background: rgba(var(--cyan-rgb), 0.2); color: var(--cyan);">Back to Home</a>
+    </p>
+</div>
+{% endblock %}

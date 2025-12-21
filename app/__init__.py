@@ -52,43 +52,53 @@ def create_app():
         db.create_all()
         
         # Create default admin user if users table is empty
-        if User.query.count() == 0:
-            admin = User(
-                username=cfg.ADMIN_USER,
-                is_admin=1,
-                must_change_password=1
-            )
-            admin.set_password(cfg.ADMIN_PASS)
-            db.session.add(admin)
-            db.session.commit()
+        try:
+            if User.query.count() == 0:
+                admin = User(
+                    username=cfg.ADMIN_USER,
+                    is_admin=1,
+                    must_change_password=1
+                )
+                admin.set_password(cfg.ADMIN_PASS)
+                db.session.add(admin)
+                db.session.commit()
+        except Exception as e:
+            # Handle case where columns don't exist yet (during migrations)
+            pass
         
         # Seed sample data if articles table is empty
-        if Article.query.count() == 0:
-            samples = [
-                Article(slug='flask-quickstart', title='Flask Quickstart', 
-                       summary='A tiny guide to get a Flask app running.', 
-                       content='<p>This article walks through creating a single-file Flask app, running it locally, and structuring simple templates.</p>', 
-                       published=1),
-                Article(slug='project-structure-tips', title='Project Structure Tips', 
-                       summary='Small project layout suggestions for clarity and reuse.', 
-                       content='<p>Keep templates, static, and small helper modules organized. Use a simple database.py for demo data.</p>', 
-                       published=1),
-                Article(slug='deploy-simple-app', title='Deploying a Simple App', 
-                       summary='Notes on lightweight deployment options for small Flask apps.', 
-                       content='<p>Options include simple WSGI servers behind a reverse proxy, or using containers for portability.</p>', 
-                       published=1),
-            ]
-            db.session.add_all(samples)
-            db.session.commit()
+        try:
+            if Article.query.count() == 0:
+                samples = [
+                    Article(slug='flask-quickstart', title='Flask Quickstart', 
+                           summary='A tiny guide to get a Flask app running.', 
+                           content='<p>This article walks through creating a single-file Flask app, running it locally, and structuring simple templates.</p>', 
+                           published=1),
+                    Article(slug='project-structure-tips', title='Project Structure Tips', 
+                           summary='Small project layout suggestions for clarity and reuse.', 
+                           content='<p>Keep templates, static, and small helper modules organized. Use a simple database.py for demo data.</p>', 
+                           published=1),
+                    Article(slug='deploy-simple-app', title='Deploying a Simple App', 
+                           summary='Notes on lightweight deployment options for small Flask apps.', 
+                           content='<p>Options include simple WSGI servers behind a reverse proxy, or using containers for portability.</p>', 
+                           published=1),
+                ]
+                db.session.add_all(samples)
+                db.session.commit()
+        except Exception as e:
+            # Handle case where columns don't exist yet (during migrations)
+            pass
     
     # Register blueprints
     from app.routes.public import public_bp
     from app.routes.admin import admin_bp
     from app.routes.auth import auth_bp
+    from app.routes.profile import profile_bp
     
     app.register_blueprint(public_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(profile_bp)
     
     # Register error handlers
     from flask import render_template

@@ -9,6 +9,7 @@
 	
 	<div style="margin:1.5rem 0; display: flex; gap: 1rem; flex-wrap: wrap;">
 		<a class="button" href="{{ url_for('admin.new_article') }}">+ New Article</a>
+		<a class="button" href="{{ url_for('admin.users') }}" style="background: linear-gradient(135deg, var(--dark-purple), var(--blue));">👥 Manage Users</a>
 		<a class="button" href="{{ url_for('admin.newsletter_subscribers') }}" style="background: linear-gradient(135deg, var(--dark-purple), var(--blue));">📧 Newsletter Subscribers</a>
 		<a class="button" href="{{ url_for('auth.change_password') }}" style="background: linear-gradient(135deg, var(--dark-purple), var(--blue));">Change Password</a>
 	</div>
@@ -21,6 +22,7 @@
 				<thead>
 					<tr style="border-bottom:2px solid var(--card-border);">
 						<th style="text-align:left;padding:0.75rem;color:var(--cyan);">Title</th>
+						<th style="text-align:left;padding:0.75rem;color:var(--cyan);">Author</th>
 						<th style="text-align:center;padding:0.75rem;color:var(--cyan);">Status</th>
 						<th style="text-align:center;padding:0.75rem;color:var(--cyan);">Actions</th>
 					</tr>
@@ -29,9 +31,18 @@
 					{% for article in articles %}
 					<tr style="border-bottom:1px solid var(--card-border);">
 						<td style="padding:0.75rem;">
-							<a href="{{ url_for('public.article_detail', slug=article.slug) }}" style="font-weight:500;">{{ article.title }}</a>
+							<a href="{{ url_for('public.article', slug=article.slug) }}" style="font-weight:500;">{{ article.title }}</a>
 							{% if article.summary %}
 								<div class="muted" style="font-size:0.85rem;margin-top:0.25rem;">{{ article.summary[:80] }}{% if article.summary|length > 80 %}...{% endif %}</div>
+							{% endif %}
+						</td>
+						<td style="padding:0.75rem;">
+							{% if article.author %}
+								<a href="{{ url_for('profile.view_profile', username=article.author.username) }}" style="font-size:0.9rem;color:var(--text);">
+									{{ article.author.display_name or article.author.username }}
+								</a>
+							{% else %}
+								<span class="muted" style="font-size:0.9rem;">Unknown</span>
 							{% endif %}
 						</td>
 						<td style="text-align:center;padding:0.75rem;">
@@ -44,6 +55,7 @@
 						<td style="text-align:center;padding:0.75rem;">
 							<a href="{{ url_for('admin.edit_article', slug=article.slug) }}" style="color:var(--light-purple);font-size:0.9rem;margin-right:1rem;">Edit</a>
 							<form method="POST" action="{{ url_for('admin.delete_article', slug=article.slug) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete &quot;{{ article.title }}&quot;? This cannot be undone.');">
+								<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 								<button type="submit" style="background:none;border:none;color:#ef4444;font-size:0.9rem;cursor:pointer;padding:0;font-family:inherit;text-decoration:none;transition:color 0.3s ease;" onmouseover="this.style.color='#fca5a5'" onmouseout="this.style.color='#ef4444'">Delete</button>
 							</form>
 						</td>

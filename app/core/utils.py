@@ -8,7 +8,7 @@ This file is kept for any future utility functions that don't need async process
 # See: app/core/tasks.py for:
 #   - send_welcome_email_task (async welcome emails)
 #   - send_article_notification_task (async article notifications)
+#   - send_welcome_email_sync (synchronous welcome emails)
+#   - send_article_notification_sync (synchronous article notifications)
 
 # Add any synchronous utility functions here as needed
-
-                continue

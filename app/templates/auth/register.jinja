@@ -1,0 +1,53 @@
+{% extends "components/_main.jinja" %}
+
+{% block title %}Create Account{% endblock %}
+
+{% block main %}
+<div class="card">
+  <h2>Create New Account</h2>
+  <p class="muted">Join our community to comment and like articles!</p>
+
+  <form action="{{ url_for('auth.register') }}{% if request.args.get('next') %}?next={{ request.args.get('next') }}{% endif %}" method="post" novalidate style="max-width:420px;margin:1rem auto;text-align:left;">
+    {{ form.hidden_tag() }}
+    
+    <div style="margin-bottom:1rem;">
+      {{ form.username.label(class="muted", style="display:block;margin-bottom:0.35rem;") }}
+      {{ form.username(class="form-input") }}
+      <small class="muted" style="font-size:0.85rem;margin-top:0.25rem;display:block;">Choose a unique username (3-80 characters)</small>
+    </div>
+
+    <div style="margin-bottom:1rem;">
+      {{ form.password.label(class="muted", style="display:block;margin-bottom:0.35rem;") }}
+      {{ form.password(class="form-input") }}
+      <small class="muted" style="font-size:0.85rem;margin-top:0.25rem;display:block;">At least 4 characters</small>
+    </div>
+
+    <div style="margin-bottom:1rem;">
+      {{ form.confirm_password.label(class="muted", style="display:block;margin-bottom:0.35rem;") }}
+      {{ form.confirm_password(class="form-input") }}
+    </div>
+
+    <div style="background: rgba(6,182,212,0.1); border: 1px solid var(--cyan); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+      <p class="muted" style="font-size:0.9rem;margin:0;">
+        <i class="bi bi-info-circle"></i> 
+        <strong>Guest Account:</strong> You'll be able to comment on articles, like posts, and customize your profile. 
+        You won't have admin access to create or manage articles.
+      </p>
+    </div>
+
+    <p style="margin-top:1.5rem; text-align:center; display:flex; gap:0.5rem; justify-content:center;">
+      {{ form.submit(class="button", style="flex:1; max-width:200px; border:none; background: linear-gradient(135deg, var(--dark-purple), var(--blue));") }}
+      <a class="button" href="{{ url_for('auth.login') }}{% if request.args.get('next') %}?next={{ request.args.get('next') }}{% endif %}" style="flex:1; max-width:160px; display:flex; align-items:center; justify-content:center;">Cancel</a>
+    </p>
+  </form>
+
+  <div style="margin-top:2rem; padding-top:2rem; border-top:1px solid var(--card-border); text-align:center;">
+    <p class="muted" style="margin-bottom:0.75rem;">Already have an account?</p>
+    <a href="{{ url_for('auth.login') }}{% if request.args.get('next') %}?next={{ request.args.get('next') }}{% endif %}" 
+       class="button" 
+       style="display:inline-flex; align-items:center; gap:0.5rem;">
+      <i class="bi bi-box-arrow-in-right"></i> Sign In
+    </a>
+  </div>
+</div>
+{% endblock %}

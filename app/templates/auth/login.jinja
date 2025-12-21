@@ -25,5 +25,14 @@
       <a class="button" href="{{ url_for('public.index') }}" style="flex:1; max-width:160px; display:flex; align-items:center; justify-content:center;">Cancel</a>
     </p>
   </form>
+
+  <div style="margin-top:2rem; padding-top:2rem; border-top:1px solid var(--card-border); text-align:center;">
+    <p class="muted" style="margin-bottom:0.75rem;">Don't have an account?</p>
+    <a href="{{ url_for('auth.register') }}{% if request.args.get('next') %}?next={{ request.args.get('next') }}{% endif %}" 
+       class="button" 
+       style="background: linear-gradient(135deg, var(--dark-purple), var(--blue)); display:inline-flex; align-items:center; gap:0.5rem;">
+      <i class="bi bi-person-plus"></i> Create New Account
+    </a>
+  </div>
 </div>
 {% endblock %}

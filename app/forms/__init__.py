@@ -28,6 +28,38 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Sign in')
 
 
+class RegistrationForm(FlaskForm):
+    """Registration form for new user signup."""
+    username = StringField(
+        'Username',
+        validators=[
+            DataRequired(message='Username is required'),
+            Length(min=3, max=80, message='Username must be between 3 and 80 characters')
+        ],
+        render_kw={'placeholder': 'Choose a username', 'autocomplete': 'username'}
+    )
+    
+    password = PasswordField(
+        'Password',
+        validators=[
+            DataRequired(message='Password is required'),
+            Length(min=4, message='Password must be at least 4 characters')
+        ],
+        render_kw={'placeholder': 'Choose a password', 'autocomplete': 'new-password'}
+    )
+    
+    confirm_password = PasswordField(
+        'Confirm Password',
+        validators=[
+            DataRequired(message='Please confirm your password'),
+            EqualTo('password', message='Passwords must match')
+        ],
+        render_kw={'placeholder': 'Confirm your password', 'autocomplete': 'new-password'}
+    )
+    
+    submit = SubmitField('Create Account')
+
+
 class ArticleForm(FlaskForm):
     """Form for creating and editing articles."""
     title = StringField(
@@ -109,3 +141,72 @@ class NewsletterForm(FlaskForm):
     )
     
     submit = SubmitField('Subscribe')
+
+
+class ProfileForm(FlaskForm):
+    """Form for editing user profile."""
+    display_name = StringField(
+        'Display Name',
+        validators=[
+            Optional(),
+            Length(max=100, message='Display name must not exceed 100 characters')
+        ],
+        render_kw={'placeholder': 'Your display name'}
+    )
+    
+    email = StringField(
+        'Email',
+        validators=[
+            Optional(),
+            Email(message='Please enter a valid email address'),
+            Length(max=120, message='Email must not exceed 120 characters')
+        ],
+        render_kw={'placeholder': 'your.email@example.com', 'type': 'email'}
+    )
+    
+    bio = TextAreaField(
+        'Bio',
+        validators=[
+            Optional(),
+            Length(max=500, message='Bio must not exceed 500 characters')
+        ],
+        render_kw={'placeholder': 'Tell us about yourself', 'rows': 4}
+    )
+    
+    location = StringField(
+        'Location',
+        validators=[
+            Optional(),
+            Length(max=100, message='Location must not exceed 100 characters')
+        ],
+        render_kw={'placeholder': 'City, Country'}
+    )
+    
+    website = StringField(
+        'Website',
+        validators=[
+            Optional(),
+            Length(max=200, message='Website URL must not exceed 200 characters')
+        ],
+        render_kw={'placeholder': 'https://yourwebsite.com'}
+    )
+    
+    twitter = StringField(
+        'Twitter',
+        validators=[
+            Optional(),
+            Length(max=100, message='Twitter handle must not exceed 100 characters')
+        ],
+        render_kw={'placeholder': '@yourusername'}
+    )
+    
+    github = StringField(
+        'GitHub',
+        validators=[
+            Optional(),
+            Length(max=100, message='GitHub username must not exceed 100 characters')
+        ],
+        render_kw={'placeholder': 'yourusername'}
+    )
+    
+    submit = SubmitField('Update Profile')

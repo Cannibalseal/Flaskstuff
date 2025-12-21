@@ -90,6 +90,7 @@ desktop.ini
 *.log
 *.log.*
 logs/
+ubuntu-*.log
 
 # Debug files
 debug.log

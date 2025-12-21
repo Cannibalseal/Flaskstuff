@@ -1,0 +1,80 @@
+{% extends "components/_main.jinja" %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block main %}
+<div class="card">
+    <h2>Edit Profile</h2>
+    <p class="muted">Update your public profile information</p>
+    
+    <form method="POST" enctype="multipart/form-data" style="margin-top: 2rem;">
+        {{ form.hidden_tag() }}
+        
+        <!-- Profile Picture -->
+        <div style="margin-bottom: 2rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Profile Picture</label>
+            {% if user.profile_picture %}
+                <img src="{{ url_for('static', filename=user.profile_picture) }}" alt="Current profile" style="width: 100px; height: 100px; border-radius: 10px; object-fit: cover; margin-bottom: 0.5rem; border: 2px solid var(--card-border);">
+            {% else %}
+                <div style="width: 100px; height: 100px; border-radius: 10px; background: linear-gradient(135deg, var(--purple), var(--cyan)); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; font-weight: bold; margin-bottom: 0.5rem;">
+                    {{ (user.display_name or user.username)[0]|upper }}
+                </div>
+            {% endif %}
+            <input type="file" name="profile_picture" accept="image/*" style="display: block; padding: 0.5rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); width: 100%;">
+            <small style="color: var(--muted); display: block; margin-top: 0.25rem;">JPG, PNG, or GIF. Max 5MB.</small>
+        </div>
+        
+        <!-- Display Name -->
+        <div style="margin-bottom: 1.5rem;">
+            {{ form.display_name.label(style="display: block; margin-bottom: 0.5rem; font-weight: 500;") }}
+            {{ form.display_name(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem;") }}
+            <small style="color: var(--muted); display: block; margin-top: 0.25rem;">Your public display name (defaults to username)</small>
+        </div>
+        
+        <!-- Email -->
+        <div style="margin-bottom: 1.5rem;">
+            {{ form.email.label(style="display: block; margin-bottom: 0.5rem; font-weight: 500;") }}
+            {{ form.email(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem;") }}
+            <small style="color: var(--muted); display: block; margin-top: 0.25rem;">Your contact email address</small>
+        </div>
+        
+        <!-- Bio -->
+        <div style="margin-bottom: 1.5rem;">
+            {{ form.bio.label(style="display: block; margin-bottom: 0.5rem; font-weight: 500;") }}
+            {{ form.bio(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem; resize: vertical;") }}
+            <small style="color: var(--muted); display: block; margin-top: 0.25rem;">Tell visitors about yourself</small>
+        </div>
+        
+        <!-- Location -->
+        <div style="margin-bottom: 1.5rem;">
+            {{ form.location.label(style="display: block; margin-bottom: 0.5rem; font-weight: 500;") }}
+            {{ form.location(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem;") }}
+        </div>
+        
+        <!-- Website -->
+        <div style="margin-bottom: 1.5rem;">
+            {{ form.website.label(style="display: block; margin-bottom: 0.5rem; font-weight: 500;") }}
+            {{ form.website(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem;") }}
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+            <!-- Twitter -->
+            <div>
+                {{ form.twitter.label(style="display: block; margin-bottom: 0.5rem; font-weight: 500;") }}
+                {{ form.twitter(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem;") }}
+            </div>
+            
+            <!-- GitHub -->
+            <div>
+                {{ form.github.label(style="display: block; margin-bottom: 0.5rem; font-weight: 500;") }}
+                {{ form.github(style="width: 100%; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); font-size: 1rem;") }}
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem;">
+            {{ form.submit(class="button") }}
+            <a href="{{ url_for('profile.view_profile') }}" class="button" style="background: rgba(var(--muted-rgb), 0.2); color: var(--muted);">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

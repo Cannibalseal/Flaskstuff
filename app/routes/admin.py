@@ -28,14 +28,6 @@ def require_login():
     return None
 
 
-@admin_bp.route('/secret-area')
-def secret_area():
-    """Demo route to show 403 error - intentionally requires no login."""
-    if not session.get('logged_in'):
-        abort(403)
-    return "You found the secret area! 🎉"
-
-
 @admin_bp.route('/')
 def dashboard():
     """Admin dashboard - show all articles."""
@@ -64,18 +56,25 @@ def new_article():
         published = 1 if form.published.data else 0
         
         slug = Article.generate_slug(title)
-        article = Article(slug=slug, title=title, summary=summary, content=content, published=published)
+        article = Article(
+            slug=slug, 
+            title=title, 
+            summary=summary, 
+            content=content, 
+            published=published,
+            author_id=session.get('user_id')  # Track who created it
+        )
         db.session.add(article)
         db.session.commit()
         
-        # Send newsletter asynchronously if article is published
+        # Send newsletter if article is published (synchronous for now, no Celery)
         if published:
             try:
-                from app.core.tasks import send_article_notification_task
-                send_article_notification_task.delay(article.id)
-                flash(f'Article "{title}" created! Newsletter will be sent to subscribers.', 'success')
+                from app.core.tasks import send_article_notification_sync
+                send_article_notification_sync(article.id)
+                flash(f'Article "{title}" created and notifications sent!', 'success')
             except Exception as e:
-                flash(f'Article "{title}" created successfully, but newsletter task failed: {e}', 'info')
+                flash(f'Article "{title}" created, but email notifications failed: {str(e)}', 'warning')
         else:
             flash(f'Article "{title}" created successfully!', 'success')
         
@@ -155,3 +154,136 @@ def newsletter_subscribers():
     
     subscribers = Newsletter.query.order_by(Newsletter.subscribed_at.desc()).all()
     return render_template('admin/newsletter_subscribers.jinja', subscribers=subscribers)
+
+
+@admin_bp.route('/newsletter/delete/<int:subscriber_id>', methods=['POST'])
+def delete_subscriber(subscriber_id):
+    """Delete a newsletter subscriber."""
+    redirect_response = require_login()
+    if redirect_response:
+        return redirect_response
+    
+    subscriber = db.session.get(Newsletter, subscriber_id)
+    if not subscriber:
+        flash('Subscriber not found.', 'error')
+        return redirect(url_for('admin.newsletter_subscribers'))
+    
+    email = subscriber.email
+    db.session.delete(subscriber)
+    db.session.commit()
+    
+    flash(f'Subscriber "{email}" removed successfully!', 'success')
+    return redirect(url_for('admin.newsletter_subscribers'))
+
+
+@admin_bp.route('/users')
+def users():
+    """View all users."""
+    redirect_response = require_login()
+    if redirect_response:
+        return redirect_response
+    
+    all_users = User.query.order_by(User.created_at.desc()).all()
+    current_user_id = session.get('user_id')
+    
+    # Get activity stats for each user
+    users_with_stats = []
+    for user in all_users:
+        from app.models import Comment, Like
+        stats = {
+            'user': user,
+            'articles_count': len(user.articles),
+            'comments_count': Comment.query.filter_by(user_id=user.id).count(),
+            'likes_count': Like.query.filter_by(user_id=user.id).count(),
+        }
+        users_with_stats.append(stats)
+    
+    return render_template('admin/users.jinja', users=users_with_stats, current_user_id=current_user_id)
+
+
+@admin_bp.route('/users/<int:user_id>/toggle-admin', methods=['POST'])
+def toggle_admin(user_id):
+    """Toggle admin privileges for a user."""
+    redirect_response = require_login()
+    if redirect_response:
+        return redirect_response
+    
+    current_user_id = session.get('user_id')
+    if user_id == current_user_id:
+        flash('You cannot change your own admin privileges.', 'error')
+        return redirect(url_for('admin.users'))
+    
+    user = db.session.get(User, user_id)
+    if not user:
+        flash('User not found.', 'error')
+        return redirect(url_for('admin.users'))
+    
+    user.is_admin = 1 if user.is_admin == 0 else 0
+    db.session.commit()
+    
+    status = 'granted' if user.is_admin else 'revoked'
+    flash(f'Admin privileges {status} for user "{user.username}".', 'success')
+    return redirect(url_for('admin.users'))
+
+
+@admin_bp.route('/users/<int:user_id>/delete', methods=['POST'])
+def delete_user(user_id):
+    """Delete a user."""
+    redirect_response = require_login()
+    if redirect_response:
+        return redirect_response
+    
+    current_user_id = session.get('user_id')
+    if user_id == current_user_id:
+        flash('You cannot delete your own account.', 'error')
+        return redirect(url_for('admin.users'))
+    
+    user = db.session.get(User, user_id)
+    if not user:
+        flash('User not found.', 'error')
+        return redirect(url_for('admin.users'))
+    
+    username = user.username
+    db.session.delete(user)
+    db.session.commit()
+    
+    flash(f'User "{username}" deleted successfully!', 'success')
+    return redirect(url_for('admin.users'))
+
+
+@admin_bp.route('/users/<int:user_id>/activity')
+def user_activity(user_id):
+    """View detailed activity for a user."""
+    redirect_response = require_login()
+    if redirect_response:
+        return redirect_response
+    
+    user = db.session.get(User, user_id)
+    if not user:
+        flash('User not found.', 'error')
+        return redirect(url_for('admin.users'))
+    
+    from app.models import Comment, Like
+    
+    # Get user's articles
+    articles = Article.query.filter_by(author_id=user_id).order_by(Article.created_at.desc()).all()
+    
+    # Get user's comments
+    comments = Comment.query.filter_by(user_id=user_id).order_by(Comment.created_at.desc()).limit(50).all()
+    
+    # Get user's likes
+    likes = Like.query.filter_by(user_id=user_id).order_by(Like.created_at.desc()).limit(50).all()
+    
+    activity_data = {
+        'user': user,
+        'articles': articles,
+        'comments': comments,
+        'likes': likes,
+        'stats': {
+            'total_articles': len(articles),
+            'total_comments': Comment.query.filter_by(user_id=user_id).count(),
+            'total_likes': Like.query.filter_by(user_id=user_id).count(),
+        }
+    }
+    
+    return render_template('admin/user_activity.jinja', **activity_data)

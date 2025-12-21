@@ -1,5 +1,9 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Project base directory (one level up from configs/)
 BASE_DIR = Path(__file__).resolve().parent.parent
