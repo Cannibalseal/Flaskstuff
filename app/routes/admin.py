@@ -443,5 +443,4 @@ def customize_site():
         flash('Site settings saved successfully!', 'success')
         return redirect(url_for('admin.customize_site'))
     
-    return render_template('admin/customize_site.jinja', settings=settings)
-
+    return render_template('admin/customize_site_simple.jinja', settings=settings)
