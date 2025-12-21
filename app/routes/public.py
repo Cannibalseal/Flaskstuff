@@ -3,6 +3,9 @@
 from flask import Blueprint, render_template, request, jsonify, make_response, flash, url_for, redirect
 from app.models import db, Article, Newsletter
 from app.forms import NewsletterForm
+import logging
+
+logger = logging.getLogger(__name__)
 
 public_bp = Blueprint('public', __name__)
 

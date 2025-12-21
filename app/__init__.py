@@ -7,9 +7,6 @@ from config import cfg
 import markdown
 from markupsafe import Markup
 
-# Celery instance will be initialized in create_app
-celery = None
-
 
 def create_app():
     """Create and configure the Flask application."""
@@ -36,10 +33,8 @@ def create_app():
     # Initialize CSRF Protection
     csrf.init_app(app)
     
-    # Initialize Celery
-    from app.core.tasks import init_celery
-    global celery
-    celery = init_celery(app)
+    # Note: Using threading for background emails instead of Celery/Redis
+    # See app/core/tasks.py for send_welcome_email_background() and send_article_notification_background()
     
     # Add markdown filter for templates
     @app.template_filter('markdown')
