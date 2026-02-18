@@ -4,8 +4,10 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from werkzeug.utils import secure_filename
 from app.models import db, Article, User, Newsletter, Comment, Like, SiteSettings
 from app.forms import ArticleForm
+from datetime import datetime
 import os
 from pathlib import Path
+
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -135,7 +137,8 @@ def edit_article(slug):
         article.summary = form.summary.data or ''
         article.content = form.content.data
         article.published = 1 if form.published.data else 0
-        article.updated_at = db.func.now()
+        article.updated_at = datetime.utcnow()
+
         
         db.session.commit()
         flash(f'Article "{article.title}" updated successfully!', 'success')

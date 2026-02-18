@@ -79,9 +79,10 @@ def register():
             session['logged_in'] = True
             session['user_id'] = new_user.id
             session['username'] = new_user.username
-            session['is_admin'] = False
-            session['can_write_articles'] = False
-            session['must_change_password'] = False
+            session['is_admin'] = bool(new_user.is_admin)
+            session['can_write_articles'] = bool(new_user.can_write_articles)
+            session['must_change_password'] = bool(new_user.must_change_password)
+
             
             flash('Account created successfully! Welcome!', 'success')
             
