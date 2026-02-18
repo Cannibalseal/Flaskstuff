@@ -141,4 +141,13 @@ tmp/
 *.o
 *.pyc
 
+# Utility scripts (not meant to be committed)
+reset_admin.py
+create_admin.py
+seed_data.py
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
 # End of file
