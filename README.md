@@ -36,7 +36,7 @@ A feature-rich blog application built with Flask, featuring user authentication,
 - **Newsletter**
   - Email subscription system
   - Professional email templates
-  - Celery async task processing
+  - Background email processing using threading
 
 - **Site Customization**
   - Admin-only customization panel with CodeMirror editors
@@ -60,9 +60,8 @@ Flaskstuff/
 ├── app/                          # Main application package
 │   ├── __init__.py              # App factory and initialization
 │   ├── core/                    # Core utilities
-│   │   ├── celery_app.py       # Celery configuration
-│   │   ├── tasks.py            # Background tasks
-│   │   └── utils.py            # Utility functions
+│   │   ├── tasks.py            # Background tasks (email notifications)
+│   │   └── __init__.py         # Core extensions (mail, csrf)
 │   ├── forms/                   # WTForms definitions
 │   │   └── __init__.py         # All form classes
 │   ├── models/                  # Database models
@@ -94,13 +93,12 @@ Flaskstuff/
 │   └── development.py          # Development settings
 │
 ├── docs/                        # Documentation
-│   ├── CELERY_REDIS_SETUP.md  # Celery and Redis setup guide
-│   ├── NEW_FEATURES.md         # Recent features documentation
 │   ├── NEWSLETTER_SETUP.md     # Newsletter configuration
+│   ├── PERMISSIONS.md          # User permissions guide
 │   ├── PROJECT_STRUCTURE.md    # Detailed structure guide
 │   ├── SECURITY.md             # Security guidelines
-│   ├── TESTING_GUIDE.md        # Testing instructions
-│   └── UPDATES.md              # Update history
+│   ├── SITE_CUSTOMIZATION.md  # Site customization guide
+│   └── TESTING_GUIDE.md        # Testing instructions
 │
 ├── instance/                    # Instance-specific files (gitignored)
 │

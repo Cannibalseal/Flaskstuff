@@ -1,0 +1,92 @@
+{% extends "components/_main.jinja" %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+{% endblock %}
+
+{% block title %}{% if mode == 'edit' %}Edit Page{% else %}New Page{% endif %}{% endblock %}
+
+{% block main %}
+<div class="card">
+    <h2>{% if mode == 'edit' %}Edit Page{% else %}New Page{% endif %}</h2>
+    <p class="muted">Create or modify a custom page for your site.</p>
+
+    <form method="POST" action="" style="margin-top: 1.5rem;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <div class="form-group">
+            <label for="title">Page Title</label>
+            <input type="text" id="title" name="title" value="{{ page.title if page else '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="slug">URL Slug (e.g., /my-new-page/)</label>
+            <input type="text" id="slug" name="slug" value="{{ page.slug if page else '' }}" placeholder="Leave blank to auto-generate from title">
+            <small class="muted">Allowed characters: letters, numbers, and hyphens.</small>
+        </div>
+
+        <div class="form-group">
+            <label for="content">Content (HTML)</label>
+            <textarea id="content" name="content">{{ page.content if page else '' }}</textarea>
+        </div>
+
+        <div class="form-group-checkbox">
+            <input type="checkbox" id="is_published" name="is_published" {% if page and page.is_published %}checked{% endif %}>
+            <label for="is_published">Publish this page</label>
+        </div>
+        
+        <div class="form-group-checkbox">
+            <input type="checkbox" id="show_in_nav" name="show_in_nav" {% if page and page.show_in_nav %}checked{% endif %}>
+            <label for="show_in_nav">Show in main navigation</label>
+        </div>
+
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <button type="submit" class="button">{% if mode == 'edit' %}Update Page{% else %}Create Page{% endif %}</button>
+            <a href="{{ url_for('admin.dashboard') }}" class="button-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var editor = CodeMirror.fromTextArea(document.getElementById('content'), {
+        lineNumbers: true,
+        mode: 'htmlmixed',
+        theme: 'dracula',
+        lineWrapping: true,
+        indentUnit: 4
+    });
+
+    // --- UX IMPROVEMENT: Auto-generate slug from title ---
+    const titleInput = document.getElementById('title');
+    const slugInput = document.getElementById('slug');
+    let userModifiedSlug = slugInput.value.trim() !== '';
+
+    slugInput.addEventListener('input', function() {
+        userModifiedSlug = true;
+    });
+
+    titleInput.addEventListener('input', function() {
+        if (!userModifiedSlug) {
+            slugInput.value = generateSlug(this.value);
+        }
+    });
+
+    function generateSlug(text) {
+        return text.toString().toLowerCase()
+            .replace(/\s+/g, '-')           // Replace spaces with -
+            .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+            .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+            .replace(/^-+/, '')             // Trim - from start of text
+            .replace(/-+$/, '');            // Trim - from end of text
+    }
+    // ----------------------------------------------------
+
+});
+</script>
+{% endblock %}

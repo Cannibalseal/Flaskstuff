@@ -2,7 +2,7 @@
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, abort
 from werkzeug.utils import secure_filename
-from app.models import db, Article, User, Newsletter, Comment, Like, SiteSettings
+from app.models import db, Article, User, Newsletter, Comment, Like, SiteSettings, CustomPage
 from app.forms import ArticleForm
 from datetime import datetime
 import os
@@ -10,6 +10,8 @@ from pathlib import Path
 
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'svg', 'ico'}
 
 
 def require_login():
@@ -59,7 +61,8 @@ def dashboard():
     
     # Show list of all articles (published and unpublished) for management
     all_articles = [article.to_dict() for article in Article.query.order_by(Article.created_at.desc()).all()]
-    return render_template('admin/admin.jinja', articles=all_articles)
+    all_pages = CustomPage.query.order_by(CustomPage.created_at.desc()).all()
+    return render_template('admin/admin.jinja', articles=all_articles, pages=all_pages)
 
 
 @admin_bp.route('/article/new', methods=['GET', 'POST'])
@@ -304,10 +307,14 @@ def delete_user(user_id):
         return redirect(url_for('admin.users'))
     
     username = user.username
-    db.session.delete(user)
-    db.session.commit()
-    
-    flash(f'User "{username}" deleted successfully!', 'success')
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        flash(f'User "{username}" deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Cannot delete user "{username}". They may have associated articles or comments. Error: {str(e)}', 'error')
+        
     return redirect(url_for('admin.users'))
 
 
@@ -390,10 +397,17 @@ def customize_site():
         settings.enable_newsletter = 'enable_newsletter' in request.form
         settings.enable_social_sharing = 'enable_social_sharing' in request.form
         
+        def is_allowed_file(filename):
+            return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
         # Handle logo upload
         if 'logo' in request.files:
             logo = request.files['logo']
             if logo and logo.filename:
+                if not is_allowed_file(logo.filename):
+                    flash('Invalid file type for logo. Allowed types are: png, jpg, jpeg, gif, svg, ico.', 'error')
+                    return redirect(url_for('admin.customize_site'))
+
                 filename = secure_filename(logo.filename)
                 timestamp = os.urandom(8).hex()
                 file_ext = os.path.splitext(filename)[1]
@@ -416,6 +430,10 @@ def customize_site():
         if 'favicon' in request.files:
             favicon = request.files['favicon']
             if favicon and favicon.filename:
+                if not is_allowed_file(favicon.filename):
+                    flash('Invalid file type for favicon. Allowed types are: png, jpg, jpeg, gif, svg, ico.', 'error')
+                    return redirect(url_for('admin.customize_site'))
+
                 filename = secure_filename(favicon.filename)
                 timestamp = os.urandom(8).hex()
                 file_ext = os.path.splitext(filename)[1]
@@ -439,3 +457,132 @@ def customize_site():
         return redirect(url_for('admin.customize_site'))
     
     return render_template('admin/customize_site_simple.jinja', settings=settings)
+
+
+# Custom Pages Management Routes
+@admin_bp.route('/pages/new', methods=['GET', 'POST'])
+def new_page():
+    """Create a new custom page."""
+    redirect_response = require_login()
+    if redirect_response:
+        return redirect_response
+    
+    if request.method == 'POST':
+        title = request.form.get('title', '').strip()
+        slug = request.form.get('slug', '').strip()
+        content = request.form.get('content', '')
+        is_published = 'is_published' in request.form
+        show_in_nav = 'show_in_nav' in request.form
+        
+        if not title:
+            flash('Page title is required.', 'error')
+            return redirect(url_for('admin.new_page'))
+        
+        # Generate slug from title if not provided
+        if not slug:
+            slug = CustomPage.generate_slug(title)
+        else:
+            # Check for duplicate slug
+            existing = CustomPage.query.filter_by(slug=slug).first()
+            if existing:
+                flash('A page with this URL already exists. Please use a different URL.', 'error')
+                return redirect(url_for('admin.new_page'))
+        
+        page = CustomPage(
+            title=title,
+            slug=slug,
+            content=content,
+            is_published=is_published,
+            show_in_nav=show_in_nav
+        )
+        db.session.add(page)
+        db.session.commit()
+        
+        flash(f'Page "{title}" created successfully!', 'success')
+        return redirect(url_for('admin.dashboard'))
+    
+    return render_template('admin/page_form.jinja', page=None, mode='new')
+
+
+@admin_bp.route('/pages/edit/<slug>', methods=['GET', 'POST'])
+def edit_page(slug):
+    """Edit an existing custom page."""
+    redirect_response = require_login()
+    if redirect_response:
+        return redirect_response
+    
+    page = CustomPage.query.filter_by(slug=slug).first()
+    if not page:
+        flash('Page not found.', 'error')
+        return redirect(url_for('admin.dashboard'))
+    
+    if request.method == 'POST':
+        title = request.form.get('title', '').strip()
+        new_slug = request.form.get('slug', '').strip()
+        content = request.form.get('content', '')
+        is_published = 'is_published' in request.form
+        show_in_nav = 'show_in_nav' in request.form
+        
+        if not title:
+            flash('Page title is required.', 'error')
+            return redirect(url_for('admin.edit_page', slug=slug))
+        
+        # Check for duplicate slug (excluding current page)
+        if new_slug and new_slug != slug:
+            existing = CustomPage.query.filter_by(slug=new_slug).first()
+            if existing and existing.id != page.id:
+                flash('A page with this URL already exists. Please use a different URL.', 'error')
+                return redirect(url_for('admin.edit_page', slug=slug))
+            page.slug = new_slug
+        
+        page.title = title
+        page.content = content
+        page.is_published = is_published
+        page.show_in_nav = show_in_nav
+        page.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        flash(f'Page "{title}" updated successfully!', 'success')
+        return redirect(url_for('admin.dashboard'))
+    
+    return render_template('admin/page_form.jinja', page=page, mode='edit')
+
+
+@admin_bp.route('/pages/delete/<slug>', methods=['POST'])
+def delete_page(slug):
+    """Delete a custom page."""
+    redirect_response = require_login()
+    if redirect_response:
+        return redirect_response
+    
+    page = CustomPage.query.filter_by(slug=slug).first()
+    if not page:
+        flash('Page not found.', 'error')
+        return redirect(url_for('admin.dashboard'))
+    
+    title = page.title
+    db.session.delete(page)
+    db.session.commit()
+    
+    flash(f'Page "{title}" deleted successfully!', 'success')
+    return redirect(url_for('admin.dashboard'))
+
+
+@admin_bp.route('/pages/toggle/<slug>', methods=['POST'])
+def toggle_page_published(slug):
+    """Toggle publish status of a custom page."""
+    redirect_response = require_login()
+    if redirect_response:
+        return redirect_response
+    
+    page = CustomPage.query.filter_by(slug=slug).first()
+    if not page:
+        flash('Page not found.', 'error')
+        return redirect(url_for('admin.dashboard'))
+    
+    page.is_published = not page.is_published
+    db.session.commit()
+    
+    status = 'published' if page.is_published else 'unpublished'
+    flash(f'Page "{page.title}" is now {status}.', 'success')
+    return redirect(url_for('admin.dashboard'))

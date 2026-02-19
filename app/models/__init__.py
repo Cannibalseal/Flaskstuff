@@ -243,3 +243,44 @@ class Like(db.Model):
 # Initialize SiteSettings with db
 from app.models.site_settings import init_site_settings
 SiteSettings = init_site_settings(db)
+
+
+class CustomPage(db.Model):
+    """Model for custom pages that can be created by admin."""
+    __tablename__ = 'custom_pages'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    slug = db.Column(db.String(200), unique=True, nullable=False, index=True)
+    content = db.Column(db.Text, nullable=False, default='')
+    is_published = db.Column(db.Boolean, nullable=False, default=True)
+    show_in_nav = db.Column(db.Boolean, nullable=False, default=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<CustomPage {self.slug}>'
+    
+    def to_dict(self):
+        """Convert custom page to dictionary."""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'slug': self.slug,
+            'content': self.content,
+            'is_published': bool(self.is_published),
+            'show_in_nav': bool(self.show_in_nav),
+            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None,
+            'updated_at': self.updated_at.strftime('%Y-%m-%d %H:%M:%S') if self.updated_at else None,
+        }
+    
+    @staticmethod
+    def generate_slug(title):
+        """Generate URL-friendly slug from title."""
+        import re
+        # Convert to lowercase and replace spaces/special chars with hyphens
+        slug = title.lower().strip()
+        slug = re.sub(r'[^\w\s-]', '', slug)  # Remove special chars except spaces and hyphens
+        slug = re.sub(r'[\s_-]+', '-', slug)  # Replace spaces/underscores with hyphens
+        slug = slug.strip('-')  # Remove leading/trailing hyphens
+        return slug

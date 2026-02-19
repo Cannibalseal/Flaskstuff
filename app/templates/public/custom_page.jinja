@@ -1,0 +1,16 @@
+{% extends "components/_main.jinja" %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block main %}
+<div class="card">
+    <h1 style="margin-bottom: 0.5rem;">{{ page.title }}</h1>
+    <div class="muted" style="font-size: 0.9rem; margin-bottom: 1.5rem;">
+        Last updated: {{ page.updated_at.strftime('%B %d, %Y') }}
+    </div>
+    
+    <div class="page-content">
+        {{ page.content | safe }}
+    </div>
+</div>
+{% endblock %}

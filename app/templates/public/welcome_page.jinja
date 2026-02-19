@@ -3,14 +3,8 @@
 {% block title %}Welcome{% endblock %}
 
 {% block main %}
-{% set site_settings = get_site_settings() %}
-
 <div class="card">
-	{% if site_settings.welcome_page_content and site_settings.welcome_page_content.strip() %}
-		{{ site_settings.welcome_page_content | safe }}
-	{% else %}
-		<h1>Welcome!</h1>
-		<p>This is the welcome page. You can customize this content from the admin panel.</p>
-	{% endif %}
+	{# This now renders the content passed from the public.py index route #}
+	{{ content | safe }}
 </div>
 {% endblock %}

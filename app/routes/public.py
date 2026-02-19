@@ -1,7 +1,7 @@
 """Public routes for viewing articles and pages."""
 
-from flask import Blueprint, render_template, request, jsonify, flash, url_for, redirect, session
-from app.models import db, Article, Newsletter, Comment, Like
+from flask import Blueprint, render_template, request, jsonify, flash, url_for, redirect, session, abort
+from app.models import db, Article, Newsletter, Comment, Like, CustomPage, SiteSettings
 from app.forms import NewsletterForm
 import logging
 
@@ -13,13 +13,15 @@ public_bp = Blueprint('public', __name__)
 @public_bp.route('/')
 def index():
     """Home page."""
-    return render_template('public/welcome_page.jinja')
+    settings = SiteSettings.get_settings()
+    return render_template('public/welcome_page.jinja', content=settings.welcome_page_content, settings=settings)
 
 
 @public_bp.route('/about/')
 def about():
     """About page."""
-    return render_template('public/about_page.jinja')
+    settings = SiteSettings.get_settings()
+    return render_template('public/about_page.jinja', content=settings.about_page_content, settings=settings)
 
 
 @public_bp.route('/articles/', methods=['GET', 'POST'])
@@ -238,3 +240,17 @@ def toggle_like(slug):
         'likes_count': article_obj.get_likes_count()
     })
 
+
+@public_bp.route('/<slug>/')
+def view_page(slug):
+    """View a custom page."""
+    page = CustomPage.query.filter_by(slug=slug).first()
+    
+    if not page:
+        abort(404)
+        
+    # Only allow admins to view unpublished pages
+    if not page.is_published and not session.get('is_admin'):
+        abort(404)
+    
+    return render_template('public/custom_page.jinja', page=page)

@@ -1,212 +1,101 @@
 {% extends "components/_main.jinja" %}
 
-{% block title %}Site Customization - Admin{% endblock %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+<style>
+    .CodeMirror { height: 300px; border-radius: 4px; border: 1px solid var(--card-border); }
+    .section-title { margin-top: 2rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--card-border); color: var(--cyan); }
+</style>
+{% endblock %}
+
+{% block title %}Customize Site{% endblock %}
 
 {% block main %}
 <div class="card">
-    <div style="margin-bottom: 2rem;">
-        <h1 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-            ⚙️ Site Customization
-        </h1>
-        <p class="muted" style="margin-top: 0.5rem;">
-            Customize your site's content, appearance, and settings
-        </p>
-    </div>
+    <h2>Customize Site</h2>
+    <p class="muted">Adjust your site's appearance and content.</p>
 
-    <form method="POST" enctype="multipart/form-data" style="max-width: 1200px;">
+    <form method="POST" action="" enctype="multipart/form-data" style="margin-top: 1.5rem;">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         
-        <!-- Site Identity -->
-        <div style="background: var(--card); border: 2px solid var(--cyan); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
-            <h2 style="color: var(--cyan); margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
-                🏷️ Site Identity
-            </h2>
-            
-            <div style="margin-bottom: 1rem;">
-                <label for="site_name" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Site Name *</label>
-                <input type="text" id="site_name" name="site_name" value="{{ settings.site_name or 'My Blog' }}" required
-                       style="width: 100%; padding: 0.75rem; background: var(--background); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text);">
-            </div>
-
-            <div style="margin-bottom: 1rem;">
-                <label for="site_tagline" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Site Tagline</label>
-                <input type="text" id="site_tagline" name="site_tagline" value="{{ settings.site_tagline or '' }}"
-                       style="width: 100%; padding: 0.75rem; background: var(--background); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text);">
-            </div>
-
-            <div style="margin-bottom: 1rem;">
-                <label for="site_description" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Site Description</label>
-                <textarea id="site_description" name="site_description" rows="3"
-                          style="width: 100%; padding: 0.75rem; background: var(--background); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); resize: vertical; font-family: inherit;">{{ settings.site_description or '' }}</textarea>
-            </div>
+        <h3 class="section-title">General Settings</h3>
+        <div class="form-group">
+            <label for="site_name">Site Name</label>
+            <input type="text" id="site_name" name="site_name" value="{{ settings.site_name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="site_tagline">Tagline</label>
+            <input type="text" id="site_tagline" name="site_tagline" value="{{ settings.site_tagline }}">
         </div>
 
-        <!-- Page Content -->
-        <div style="background: var(--card); border: 2px solid var(--cyan); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
-            <h2 style="color: var(--cyan); margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
-                📄 Page Content (HTML Supported)
-            </h2>
-            
-            <div style="margin-bottom: 1.5rem;">
-                <label for="welcome_page_content" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                    Welcome Page Content
-                </label>
-                <textarea id="welcome_page_content" name="welcome_page_content" rows="8"
-                          style="width: 100%; padding: 0.75rem; background: var(--background); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); resize: vertical; font-family: 'Courier New', monospace; font-size: 0.95rem;">{{ settings.welcome_page_content or '<h1>Welcome!</h1>\n<p>This is the welcome page. Edit this content from the admin panel.</p>' }}</textarea>
-                <small class="muted">HTML tags are supported. Example: &lt;h1&gt;Title&lt;/h1&gt; &lt;p&gt;Paragraph&lt;/p&gt;</small>
-            </div>
-
-            <div style="margin-bottom: 1.5rem;">
-                <label for="about_page_content" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                    About Page Content
-                </label>
-                <textarea id="about_page_content" name="about_page_content" rows="8"
-                          style="width: 100%; padding: 0.75rem; background: var(--background); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); resize: vertical; font-family: 'Courier New', monospace; font-size: 0.95rem;">{{ settings.about_page_content or '<h1>About Us</h1>\n<p>Learn more about us here.</p>' }}</textarea>
-                <small class="muted">HTML tags are supported</small>
-            </div>
-
-            <div style="margin-bottom: 1.5rem;">
-                <label for="footer_content" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                    Footer Content
-                </label>
-                <textarea id="footer_content" name="footer_content" rows="4"
-                          style="width: 100%; padding: 0.75rem; background: var(--background); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); resize: vertical; font-family: 'Courier New', monospace; font-size: 0.95rem;">{{ settings.footer_content or '<p>&copy; 2025 My Blog. All rights reserved.</p>' }}</textarea>
-                <small class="muted">HTML tags are supported</small>
-            </div>
+        <h3 class="section-title">Page Content</h3>
+        <div class="form-group">
+            <label for="welcome_page_content">Welcome Page Content (HTML)</label>
+            <textarea id="welcome_page_content" name="welcome_page_content">{{ settings.welcome_page_content }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="about_page_content">About Page Content (HTML)</label>
+            <textarea id="about_page_content" name="about_page_content">{{ settings.about_page_content }}</textarea>
         </div>
 
-        <!-- Custom Styling -->
-        <div style="background: var(--card); border: 2px solid var(--cyan); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
-            <h2 style="color: var(--cyan); margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
-                🎨 Custom Styling
-            </h2>
-            
-            <div style="margin-bottom: 1.5rem;">
-                <label for="custom_css" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                    Custom CSS
-                </label>
-                <textarea id="custom_css" name="custom_css" rows="10"
-                          style="width: 100%; padding: 0.75rem; background: #1e1e1e; border: 1px solid var(--card-border); border-radius: 5px; color: #d4d4d4; resize: vertical; font-family: 'Courier New', monospace; font-size: 0.9rem;">{{ settings.custom_css or '/* Add your custom CSS here */\n\n/* Example:\n.card {\n  background: #1a1a2e;\n}\n*/' }}</textarea>
-                <small class="muted">Write CSS rules to style your site globally</small>
-            </div>
-
-            <div style="margin-bottom: 1.5rem;">
-                <label for="custom_js" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
-                    Custom JavaScript
-                </label>
-                <textarea id="custom_js" name="custom_js" rows="10"
-                          style="width: 100%; padding: 0.75rem; background: #1e1e1e; border: 1px solid var(--card-border); border-radius: 5px; color: #d4d4d4; resize: vertical; font-family: 'Courier New', monospace; font-size: 0.9rem;">{{ settings.custom_js or '// Add your custom JavaScript here\n\n// Example:\n// console.log(\"Custom JS loaded!\");\n' }}</textarea>
-                <small class="muted">Add custom JavaScript functionality (use with caution)</small>
-            </div>
-        </div>
-
-        <!-- SEO Settings -->
-        <div style="background: var(--card); border: 2px solid var(--cyan); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
-            <h2 style="color: var(--cyan); margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
-                🔍 SEO & Meta Tags
-            </h2>
-            
-            <div style="margin-bottom: 1rem;">
-                <label for="meta_keywords" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Meta Keywords</label>
-                <input type="text" id="meta_keywords" name="meta_keywords" value="{{ settings.meta_keywords or '' }}"
-                       style="width: 100%; padding: 0.75rem; background: var(--background); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text);">
-                <small class="muted">Comma-separated keywords (e.g., blog, tech, coding)</small>
-            </div>
-
-            <div style="margin-bottom: 1rem;">
-                <label for="meta_description" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Meta Description</label>
-                <textarea id="meta_description" name="meta_description" rows="2"
-                          style="width: 100%; padding: 0.75rem; background: var(--background); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text); resize: vertical; font-family: inherit;">{{ settings.meta_description or '' }}</textarea>
-                <small class="muted">Short description for search engines (150-160 characters)</small>
-            </div>
-        </div>
-
-        <!-- Appearance -->
-        <div style="background: var(--card); border: 2px solid var(--cyan); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
-            <h2 style="color: var(--cyan); margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
-                🎨 Colors & Appearance
-            </h2>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                <div>
-                    <label for="primary_color" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Primary Color</label>
-                    <input type="color" id="primary_color" name="primary_color" value="{{ settings.primary_color or '#06b6d4' }}"
-                           style="width: 100%; height: 50px; padding: 0.25rem; background: var(--background); border: 1px solid var(--card-border); border-radius: 5px; cursor: pointer;">
+        <h3 class="section-title">Images</h3>
+        <div class="form-group">
+            <label for="logo">Site Logo</label>
+            {% if settings.logo_path %}
+                <div style="margin-bottom: 0.5rem;">
+                    <img src="{{ url_for('static', filename=settings.logo_path) }}" alt="Current Logo" style="max-height: 50px;">
                 </div>
-                <div>
-                    <label for="secondary_color" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Secondary Color</label>
-                    <input type="color" id="secondary_color" name="secondary_color" value="{{ settings.secondary_color or '#8b5cf6' }}"
-                           style="width: 100%; height: 50px; padding: 0.25rem; background: var(--background); border: 1px solid var(--card-border); border-radius: 5px; cursor: pointer;">
+            {% endif %}
+            <input type="file" id="logo" name="logo" accept="image/*">
+        </div>
+        <div class="form-group">
+            <label for="favicon">Favicon</label>
+            {% if settings.favicon_path %}
+                <div style="margin-bottom: 0.5rem;">
+                    <img src="{{ url_for('static', filename=settings.favicon_path) }}" alt="Current Favicon" style="max-height: 32px;">
                 </div>
-            </div>
+            {% endif %}
+            <input type="file" id="favicon" name="favicon" accept="image/*">
         </div>
 
-        <!-- Features Toggle -->
-        <div style="background: var(--card); border: 2px solid var(--cyan); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
-            <h2 style="color: var(--cyan); margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
-                ⚡ Feature Toggles
-            </h2>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: var(--background); border: 1px solid var(--card-border); border-radius: 5px; cursor: pointer;">
-                    <input type="checkbox" name="enable_comments" {% if settings.enable_comments %}checked{% endif %}
-                           style="width: 20px; height: 20px; cursor: pointer;">
-                    <span>Enable Comments</span>
-                </label>
-                
-                <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: var(--background); border: 1px solid var(--card-border); border-radius: 5px; cursor: pointer;">
-                    <input type="checkbox" name="enable_likes" {% if settings.enable_likes %}checked{% endif %}
-                           style="width: 20px; height: 20px; cursor: pointer;">
-                    <span>Enable Likes</span>
-                </label>
-                
-                <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: var(--background); border: 1px solid var(--card-border); border-radius: 5px; cursor: pointer;">
-                    <input type="checkbox" name="enable_newsletter" {% if settings.enable_newsletter %}checked{% endif %}
-                           style="width: 20px; height: 20px; cursor: pointer;">
-                    <span>Enable Newsletter</span>
-                </label>
-                
-                <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: var(--background); border: 1px solid var(--card-border); border-radius: 5px; cursor: pointer;">
-                    <input type="checkbox" name="enable_social_sharing" {% if settings.enable_social_sharing %}checked{% endif %}
-                           style="width: 20px; height: 20px; cursor: pointer;">
-                    <span>Enable Social Sharing</span>
-                </label>
-            </div>
+        <h3 class="section-title">Features</h3>
+        <div class="form-group-checkbox">
+            <input type="checkbox" id="enable_comments" name="enable_comments" {% if settings.enable_comments %}checked{% endif %}>
+            <label for="enable_comments">Enable Comments</label>
+        </div>
+        <div class="form-group-checkbox">
+            <input type="checkbox" id="enable_likes" name="enable_likes" {% if settings.enable_likes %}checked{% endif %}>
+            <label for="enable_likes">Enable Likes</label>
+        </div>
+        <div class="form-group-checkbox">
+            <input type="checkbox" id="enable_newsletter" name="enable_newsletter" {% if settings.enable_newsletter %}checked{% endif %}>
+            <label for="enable_newsletter">Enable Newsletter</label>
         </div>
 
-        <!-- Submit Buttons -->
-        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
-            <a href="{{ url_for('admin.dashboard') }}" class="button" style="background: transparent; border: 1px solid var(--card-border);">
-                Cancel
-            </a>
-            <button type="submit" class="button" style="background: var(--cyan); border-color: var(--cyan); color: white;">
-                <i class="bi bi-save"></i> Save Settings
-            </button>
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <button type="submit" class="button">Save Changes</button>
+            <a href="{{ url_for('admin.dashboard') }}" class="button-secondary">Cancel</a>
         </div>
     </form>
 </div>
 
 <script>
-    // Confirm before leaving with unsaved changes
-    let formChanged = false;
-    const form = document.querySelector('form');
-    const inputs = form.querySelectorAll('input, textarea, select');
-    
-    inputs.forEach(input => {
-        input.addEventListener('change', () => {
-            formChanged = true;
-        });
-    });
-    
-    window.addEventListener('beforeunload', (e) => {
-        if (formChanged) {
-            e.preventDefault();
-            e.returnValue = '';
-        }
-    });
-    
-    form.addEventListener('submit', () => {
-        formChanged = false;
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    const editorConfig = {
+        lineNumbers: true,
+        mode: 'htmlmixed',
+        theme: 'dracula',
+        lineWrapping: true,
+        indentUnit: 4
+    };
+
+    CodeMirror.fromTextArea(document.getElementById('welcome_page_content'), editorConfig);
+    CodeMirror.fromTextArea(document.getElementById('about_page_content'), editorConfig);
+});
 </script>
 {% endblock %}

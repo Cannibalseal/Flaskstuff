@@ -2,7 +2,7 @@
 
 from flask import Flask
 from app.core import mail, csrf
-from app.models import db, Article, User, Newsletter
+from app.models import db, Article, User, Newsletter, CustomPage
 from config import cfg
 import markdown
 from markupsafe import Markup
@@ -64,7 +64,7 @@ def create_app():
     
     @app.context_processor
     def inject_site_settings():
-        """Make site settings available to all templates."""
+        """Make site settings and custom pages available to all templates."""
         def get_settings_wrapper():
             """Wrapper to safely get settings with error handling."""
             try:
@@ -74,8 +74,17 @@ def create_app():
                 app.logger.error(f"Error loading site settings: {e}")
                 return SiteSettings()
         
+        def get_custom_pages():
+            """Get all published custom pages for navigation."""
+            try:
+                return CustomPage.query.filter_by(is_published=True).all()
+            except Exception as e:
+                app.logger.error(f"Error loading custom pages: {e}")
+                return []
+        
         return {
-            'get_site_settings': get_settings_wrapper
+            'get_site_settings': get_settings_wrapper,
+            'custom_pages': get_custom_pages()
         }
     
     # Register error handlers
